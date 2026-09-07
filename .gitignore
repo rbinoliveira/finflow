@@ -1,0 +1,64 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+.pnpm-store
+
+# next
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# production
+build
+dist
+
+# environment
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# firebase
+.firebase
+firestore-debug.log
+firebase-debug.log
+database-debug.log
+pubsub-debug.log
+ui-debug.log
+*-debug.log
+
+# caches
+.turbo
+.eslintcache
+.cache
+.swc
+
+# tests
+coverage
+playwright-report
+test-results
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# editors
+.vscode
+.idea
+*.swp
+*.swo
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+
+# task flow
+.task-flow
+graphify-out

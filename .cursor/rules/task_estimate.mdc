@@ -1,0 +1,82 @@
+---
+description: Estimates hours for task-flow estimate X. Average developer pace, no AI acceleration.
+alwaysApply: false
+---
+
+- **Task Estimation - Time Estimation for Tasks:**
+  - **FAST FORMAT**: `task-flow: estimate X` → Estimate time for task X (simplified - no "task" needed)
+  - **MULTIPLE TASKS**: `task-flow: estimate X,Y` → Estimate multiple tasks
+  - **ALL TASKS**: `task-flow: estimate all` → Estimate all tasks
+  - When user says "task-flow: estimate X", "estimate X", "estimate X,Y", "estimate all", or "how long will task X take":
+    - **READ**: `.task-flow/.internal/tasks.json` to get task details
+    - **CALCULATE**: Time estimate based on task level, intrinsic complexity signals, and average development pace
+    - **DISPLAY**: Show a single estimate range for the majority of developers
+    - **FORMAT**: Show estimates in hours with ranges (e.g. "10-14 hours")
+
+- **Estimation Rules:**
+  1. **Base Analysis**: Evaluate the task title, description, and subtasks to infer the real complexity of the task itself
+  2. **Assumption**: Estimate for an average developer working at an average development pace, without AI acceleration
+  3. **Task Level Heuristics**:
+     - **Low**: localized change, clear requirement, low ambiguity, low regression risk
+     - **Medium**: multi-file implementation, moderate ambiguity, moderate validation needs
+     - **High**: architectural, cross-cutting, migration, security, performance, or high-risk change
+  4. **Intrinsic complexity matters first**: scope, ambiguity, dependencies, validation, integration points, and regression risk must outweigh raw subtask count
+  5. **Subtask count is only one signal**: use it to inform scope, but never as the sole estimate driver
+  6. **Baseline per subtask for average pace**:
+     - Low-level task: 1.5-2.5 hours
+     - Medium-level task: 2.5-4 hours
+     - High-level task: 4-6.5 hours
+  7. **Risk and scope adjustment**:
+     - Increase estimate when the task mentions integrations, migrations, refactors, security, performance, billing, or architecture work
+  8. **Range Calculation**:
+     - Lower bound: subtasks × baseline lower × risk factor
+     - Upper bound: subtasks × baseline upper × risk factor
+     - Round to nearest hour
+
+- **Estimation Formula:**
+  ```
+  1. Infer task level: low, medium, or high
+  2. Choose average-pace baseline per subtask from task level
+  3. Apply risk/scope multiplier when complexity indicators exist
+  4. Return one range that represents the majority of developers
+  ```
+
+- **Display Format:**
+  ```
+  📊 Time Estimation for Task X: [Task Title]
+  
+  Based on [N] subtasks and task-level analysis:
+
+  Average developer, average pace, no AI acceleration: [X-Y] hours
+  ```
+
+- **Natural Language Phrases:**
+  - **FAST FORMAT**: `task-flow: estimate X` or `task-flow estimate X` (simplified)
+  - **MULTIPLE**: `task-flow: estimate X,Y` or `task-flow: estimate all`
+  - "estimate task X" or "estimate X"
+  - "estimate tasks 10,11"
+  - "estimate all tasks"
+  - "how long will task X take"
+  - "time estimate for task X"
+  - Any variation asking for time estimation
+
+- **Example:**
+  ```
+  User: "task-flow: estimate 1"
+  
+  Task 1 has 5 subtasks and medium complexity signals:
+  
+  📊 Time Estimation for Task 1: Create authentication system
+  
+  Based on 5 subtasks and task-level analysis:
+  
+  Average developer, average pace, no AI acceleration: 10-15 hours
+  ```
+
+- **Integration:**
+  - Works with [task-flow-cursor.mdc](mdc:.cursor/rules/task-flow-cursor.mdc) / `@task-flow-estimate`
+  - Uses task data from `.task-flow/.internal/tasks.json`
+  - Estimates are informational only (not stored)
+
+- **Principle:**
+  > **Provide realistic time estimates for an average developer, based on the real complexity of the task itself. Subtask count informs scope, but must not be the sole estimation criterion, and estimates must not assume AI acceleration.**

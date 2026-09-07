@@ -1,0 +1,43 @@
+---
+description: Subtask generation templates and context rules for new tasks from tasks.input.txt. For task-flow sync use task-flow-sync.mdc or @task-flow-sync — not this file alone.
+globs: .task-flow/**
+alwaysApply: false
+---
+
+# Task generation (subtasks only)
+
+**Primary sync workflow:** [task-flow-sync.mdc](mdc:.cursor/rules/task-flow-sync.mdc) · `@task-flow-sync`
+
+Use this rule for **subtask shape** when `task-flow-sync` creates or regenerates tasks.
+
+## Contexts
+
+- Always list `.task-flow/contexts/` (all file types)
+- Match by keywords or `task-flow-screen nome.ext` → `.task-flow/contexts/nome.ext`
+- In instructions: `Context/reference: .task-flow/contexts/filename.ext`
+
+## Subtasks (per task)
+
+- 3–8 subtasks; sequential ids 1, 2, 3…
+- Title, description, instructions (3–5 steps)
+- Follow **checklist** in [coding_standards.mdc](mdc:.cursor/rules/coding_standards.mdc): `src/app/`, `src/features/`, `src/shared/`, naming suffixes, service+use-case, `cn()`, RHF+zod
+
+## File structures (minimal)
+
+**tasks.json:** `id`, `title`, `description`, `originalRequest`, `createdAt`, `dependsOn` (optional `int[]` of task ids), `subtasks[]` with `id`, `title`, `description`, `instructions`.
+
+**status.json:** `tasks.{id}.status`, `tasks.{id}.subtasks.{subtaskId}` → `pending` | `done` | `in_progress` | `manual`.
+
+**tasks.status.md:** rendered by `rbin-task-flow render-status` (do not hand-write) — banner “do not edit”; 📊 Summary (include 🖐️ manual count); `- [ ]` pending · `- [x]` done · `- [~]` manual (link to `.task-flow/dev-logs/task-X.Y-manual.md`); each summary line gets `— 🤖 AI N available` when the task is parallel-ready (see `dependsOn` below).
+
+## `dependsOn` (parallel-readiness)
+
+- When generating or regenerating a task, set `dependsOn: [<task ids>]` **only** for a real dependency — this task's instructions require another task's output to exist (shared file/module, an API the other task creates, data the other adds). Task order in `tasks.input.txt` is **not** by itself a dependency; omit `dependsOn` (or leave it empty) when tasks are actually independent, even if listed sequentially.
+- `rbin-task-flow render-status` uses `dependsOn` to compute which tasks are unblocked right now and flags up to 3 of them (in task-id order) as `🤖 AI 1/2/3 available` — this is fully deterministic from `tasks.json` + `status.json` and updates on every re-render, no separate step needed.
+- Get this right: an under-declared dependency gets flagged parallel-ready when it isn't (risk of conflicting parallel edits); an over-declared one just under-utilizes available AI streams.
+
+## Rules
+
+- Be direct: generate → save; no codebase exploration beyond `contexts/`
+- No questions during generation
+- `tasks.status.md` is produced by `rbin-task-flow render-status` — never hand-write it

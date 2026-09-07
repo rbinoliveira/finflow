@@ -1,0 +1,138 @@
+---
+description: No explanatory code comments; use dev-logs. Applies when editing TypeScript or JavaScript source files.
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+- **Prohibition of Explanatory Comments:**
+  - **❌ NEVER add** comments that explain what the code does
+  - **❌ NEVER add** comments like "// This function does X" or "// Check if user exists"
+  - **❌ NEVER add** inline comments explaining business logic
+  - **✅ Code must be self-explanatory** through clear variable, function, and class names
+
+- **Documentation in dev-logs:**
+  - **✅ When you need to explain something complex**, create a file in `dev-logs/` at the project root
+  - **✅ Create the `dev-logs/` folder** if it doesn't exist
+  - **✅ Use markdown files** (`.md`) for technical documentation
+  - **✅ Include context**, design decisions, and detailed explanations in dev-logs files
+
+- **dev-logs Structure:**
+  ```
+  project/
+  └── dev-logs/
+      ├── architecture-decisions.md
+      ├── complex-algorithms.md
+      ├── integration-notes.md
+      └── ...
+  ```
+
+- **When to Create dev-logs:**
+  - Complex algorithms that need detailed explanation
+  - Important architecture decisions
+  - Complex external API integrations
+  - Necessary workarounds or hacks
+  - Important historical context
+  - Non-obvious project patterns
+
+- **dev-logs File Format:**
+  ```markdown
+  # Topic Title
+  
+  ## Context
+  Explanation of context and why this is necessary...
+  
+  ## Implementation
+  Implementation details...
+  
+  ## References
+  - Link to documentation
+  - Related issue
+  ```
+
+- **Separation Comments Allowed:**
+  - **✅ ALLOWED**: Comments that organize and separate code blocks
+  - **✅ ALWAYS use** the exact separation pattern:
+    ```typescript
+    // ────────────────────────────────
+    // Prisma Types
+    // ────────────────────────────────
+    ```
+  - **✅ Use** to separate logical sections of code
+  - **✅ Use** to organize imports, types, constants, etc.
+
+- **Separation Comment Pattern:**
+  ```typescript
+  // ────────────────────────────────
+  // Section or Title
+  // ────────────────────────────────
+  ```
+  
+  **Characteristics:**
+  - Dash line (`─`) with exactly 31 characters
+  - Title centered between separation lines
+  - Always use `//` for line comments
+  - **No blank lines** between separation lines and title
+
+- **Correct Usage Examples:**
+  
+  **✅ DO: Separation comment**
+  ```typescript
+  // ────────────────────────────────
+  // Type Definitions
+  // ────────────────────────────────
+  
+  export type User = {
+    id: string;
+    name: string;
+  };
+  
+  // ────────────────────────────────
+  // API Functions
+  // ────────────────────────────────
+  
+  export async function fetchUser(id: string): Promise<User> {
+    // code here
+  }
+  ```
+  
+  **❌ DON'T: Explanatory comments**
+  ```typescript
+  // ❌ DON'T: This function fetches a user from the database
+  export async function fetchUser(id: string): Promise<User> {
+    // ❌ DON'T: Check if user exists
+    const user = await db.user.findUnique({ where: { id } });
+    // ❌ DON'T: Return user or throw error
+    if (!user) throw new Error('User not found');
+    return user;
+  }
+  ```
+  
+  **✅ DO: Self-explanatory code + dev-logs if necessary**
+  ```typescript
+  export async function fetchUserById(id: string): Promise<User> {
+    const user = await db.user.findUnique({ where: { id } });
+    if (!user) throw new UserNotFoundError(id);
+    return user;
+  }
+  ```
+  
+  If the logic is complex, create `dev-logs/user-fetching.md` with explanations.
+
+- **Automatic dev-logs Creation:**
+  - **Always check** if `dev-logs/` exists before creating file
+  - **Create the folder** if it doesn't exist: `mkdir -p dev-logs`
+  - **Use descriptive names** for files: `kebab-case.md`
+  - **Include date** in file content when relevant
+
+- **Exceptions and Special Cases:**
+  - **NO EXCEPTION** for explanatory comments in code
+  - Separation comments **always** follow the exact pattern
+  - Complex documentation **always** goes to `dev-logs/`
+
+- **Integration with Other Rules:**
+  - [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) - Rule formatting
+  - [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc) - Continuous improvement
+  - [rbin-git-policy.mdc](mdc:.cursor/rules/rbin-git-policy.mdc) — commits can reference dev-logs in message body
+
+- **Fundamental Principle:**
+  > **Code must be self-explanatory. If something needs explanation, document it in dev-logs/, not in code. Use comments only for visual organization following the exact pattern.**

@@ -1,0 +1,18 @@
+---
+description: Executes RBIN Task Flow subtasks — task-flow run, run next X, run task N, work on next subtasks. Prefer @task-flow-run skill; this rule is a short fallback only.
+alwaysApply: false
+---
+
+# Task Flow — Run (fallback)
+
+**Prefer:** `@task-flow-run` — `.claude/skills/task-flow-run/workflow.md`
+
+## Critical flow
+
+1. **Resolve `manual` first:** read dev-logs + conversation; append Conversation log; mark `done` only when verified.
+2. **`run next X`:** pending subtasks only; `manual` blocks until dev-log shows complete.
+3. **Automatable** → `done`; **user must act** → `manual` + dev-log; never `done` until log confirms.
+4. User reports manual progress **in normal chat** — no separate confirm command.
+5. Suggest commit via a Conventional Commit (policy: `rbin-git-policy.mdc`) — never write git.
+
+**Never during run:** `guides/reports/task-*-implementation.md`.

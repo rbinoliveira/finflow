@@ -1,0 +1,113 @@
+---
+description: RBIN coding standards checklist for TypeScript React Next.js Expo NestJS. Use when implementing or editing src/ or app/ code. Full reference on demand only.
+globs: src/**,app/**
+alwaysApply: false
+---
+
+# Coding Standards — Checklist
+
+Apply when implementing Task Flow subtasks or feature code (this file is the **checklist**). For workflows and section index: invoke the `coding_standards.mdc` checklist (`disable-model-invocation: true` — not auto). **Full guide:** [.task-flow/guides/coding-standards-full.md](mdc:.task-flow/guides/coding-standards-full.md) — **sections only**; never paste entire file into chat.
+
+---
+
+## Structure
+
+```
+src/
+├── app/        # Routes only — thin wrappers
+├── features/   # Domain logic per feature
+└── shared/     # Cross-feature reuse (2+ features)
+```
+
+**`app/`:** `page.tsx` / route files import and render feature page/screen only — no business logic, no extra state.
+
+**Next.js App Router:** `(public)/`, `(private)/`, `(server)/` — API under `app/(server)/api/`, not `app/api/`.
+
+**`features/[name]/` allowed folders:** `components/`, `hooks/`, `pages/` (web), `screens/` (mobile), `schemas/`, `services/`, `use-cases/`, `types/`, `constants/`, `utils/`, `validations/`, `providers/`, `styles/`, `libs/` — no other top-level names.
+
+**`shared/` (web/mobile):** flat folders only — no subfolders; one file per concern (e.g. `shared/components/button.tsx`).
+
+---
+
+## Stack (defaults)
+
+| Layer | Use |
+|-------|-----|
+| Web | Next 15+ App Router or React; Tailwind + `cn()`; shadcn; react-query; RHF + zod |
+| Mobile | Expo Router / RN; NativeWind + `cn()`; react-query; RHF + zod |
+| Backend | NestJS 10+; Prisma; Zod pipes (not class-validator); `app/` controllers, `features/` use-cases |
+
+**ESLint:** `@rbinflow/eslint-config` only — no extra plugins in `.eslintrc.cjs`.
+
+---
+
+## Patterns (non-negotiable)
+
+1. **Page/screen = orchestrator** — short; compose components; no long JSX blocks.
+2. **Components = single responsibility** — split when growing; page-prefixed names in feature `components/`.
+3. **`cn()`** for all class merging — never template literal conditionals for Tailwind.
+4. **API:** use-case (pure, no React) + service (react-query) — never `axios`/`api` in components.
+5. **Forms:** zod schema + `react-hook-form` + `zodResolver` + **`Controller`** on inputs — no uncontrolled inputs.
+6. **Types:** no `any`; API types `.api.type.ts`, domain `.type.ts`.
+7. **UI primitives:** no raw `<button>`, `<input>`, etc. — use `shared/components/` or feature components.
+8. **No barrel `index.ts`** re-exports — import from source file.
+9. **No explanatory code comments** — `dev-logs/` for complex docs; separation comments `// ───` only.
+10. **Git:** [rbin-git-policy.mdc](mdc:.cursor/rules/rbin-git-policy.mdc) — suggest only.
+
+---
+
+## File naming (outside `app/`)
+
+| Role | Suffix / pattern | Example |
+|------|------------------|---------|
+| Page | `.page.tsx` | `dashboard.page.tsx` |
+| Screen | `.screen.tsx` | `login.screen.tsx` |
+| Component | kebab `.tsx` (no `.component`) | `dashboard-revenue-card.tsx` |
+| Service | `.service.tsx` | `session-create.service.tsx` |
+| Use case | `.use-case.ts` | `session-create.use-case.ts` |
+| Schema | `.schema.ts` | `login.schema.ts` |
+| Hook | `.hook.tsx` | `authentication.hook.tsx` |
+| Type | `.type.ts` / `.api.type.ts` | `session.api.type.ts` |
+| Util | `.util.ts` | `error.util.ts` |
+| Validation | `.validation.ts` in `validations/` | `required-email.validation.ts` |
+| Constants | `.constants.ts` | `server-routes.constants.ts` |
+
+**Route export:** one word + page name (e.g. `AdminQuestion`); feature page `AdminQuestionPage`.
+
+---
+
+## Platform feature
+
+`features/platform/` — app shell, routes constants, `AppProviders` composition (not generic shared).
+
+**DataHandler** — use for loading/error/empty in pages (see full doc).
+
+---
+
+## Vercel — `.env` (when project deploys on Vercel)
+
+Follow **Vercel — environment variables** in [coding-standards-full.md](mdc:.task-flow/guides/coding-standards-full.md) (§0–§8):
+
+- **3 mirrored files:** `.env.example` (committed, empty values), `.env.local` (dev), `.env.production` (synced to Vercel).
+- Same keys, **alphabetical order**, one var per line — no section comments breaking alignment.
+- `.gitignore`: `.env`, `.env.*`, `!.env.example`.
+- Scripts: `scripts/env-files-check.sh`, `scripts/vercel-env-sync.sh` (full content in full doc §5–§6).
+- Audit orphan vars before aligning; classify `NEXT_PUBLIC_*`/flags as plaintext, rest as secret on Vercel.
+
+---
+
+## Audit / sync
+
+- **`task-flow: audit`:** score against this checklist; open [coding-standards-full.md](mdc:.task-flow/guides/coding-standards-full.md) only for deep dives or user-requested depth.
+- **`task-flow: sync`:** subtask instructions follow checklist patterns (structure, naming, service+use-case) — not full doc.
+
+---
+
+## Quick invoke
+
+| Need | Use |
+|------|-----|
+| Implementing code | the `coding_standards.mdc` checklist |
+| Full examples / Nest / gateways | Sections of `coding-standards-full.md` |
+| Vercel `.env` setup | `coding-standards-full.md` § Vercel |
+| Audit all categories | `@task-flow-audit` |
