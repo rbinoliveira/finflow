@@ -10,14 +10,15 @@
     "lint": "NODE_OPTIONS='--no-warnings' ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx && echo '✅ Lint concluído com sucesso!'",
     "lint:fix": "NODE_OPTIONS='--no-warnings' ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx --fix && echo '✅ Lint:fix concluído com sucesso!'",
     "typecheck": "tsc --noEmit",
-    "firebase:rules": "firebase deploy --only firestore:rules,firestore:indexes",
+    "test": "node --import tsx --test platform/scripts/test/*.test.ts",
+    "test:rules": "firebase emulators:exec --only firestore --project finflow-rules-test \"node --test platform/scripts/test/rules-tests/*.test.mjs\"",
     "env:check": "./scripts/env-files-check.sh",
     "env:sync": "./scripts/vercel-env-sync.sh",
     "env:sync:preview": "./scripts/vercel-env-sync.sh .env.local preview",
+    "firebase:deploy": "./scripts/firebase-deploy.sh",
+    "firebase:rules": "firebase deploy --only firestore:rules,firestore:indexes",
     "deploy": "vercel --prod",
-    "deploy:preview": "vercel",
-    "test": "node --import tsx --test platform/scripts/test/*.test.ts",
-    "test:rules": "firebase emulators:exec --only firestore --project finflow-rules-test \"node --test platform/scripts/test/rules-tests/*.test.mjs\""
+    "deploy:preview": "vercel"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -39,38 +39,52 @@ src/
 
 ## Comandos
 
+Todos os scripts abaixo estão em `package.json`.
+
 ### Desenvolvimento
 
 | Comando | O que faz |
 |---------|-----------|
-| `pnpm dev` | Sobe o app em `localhost:3000` |
-| `pnpm build` | Build de produção |
-| `pnpm lint` / `pnpm lint:fix` | ESLint (`@rbinflow/eslint-config`) |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm test` | Testes unitários de `platform/scripts/test/` |
-| `pnpm test:rules` | Testa `firestore.rules` no emulador (precisa de Java) |
+| `pnpm dev` | Sobe o app em `localhost:3000` com hot reload |
+| `pnpm build` | Build de produção do Next (o mesmo que a Vercel roda) |
+| `pnpm start` | Serve o build de produção localmente, para conferir antes de publicar |
+| `pnpm lint` | ESLint com `@rbinflow/eslint-config` — só aponta, não altera |
+| `pnpm lint:fix` | O mesmo, aplicando o que dá para corrigir sozinho |
+| `pnpm typecheck` | `tsc --noEmit`: checa os tipos sem emitir arquivo |
+
+### Testes
+
+| Comando | O que faz |
+|---------|-----------|
+| `pnpm test` | Testes unitários de `platform/scripts/test/` — divisão em parcelas e alocação nas faturas |
+| `pnpm test:rules` | Sobe o emulador do Firestore e testa `firestore.rules` de verdade: quem entra, quem não entra, e quais campos não podem ser reescritos. Precisa de Java instalado |
 
 ### Ambiente
 
 Três arquivos espelhados, mesmas chaves em ordem alfabética:
-`.env.example` (commitado, vazio), `.env.local` (dev), `.env.production` (Vercel).
+`.env.example` (commitado, valores vazios), `.env.local` (dev) e
+`.env.production` (o que sobe para a Vercel).
 
 | Comando | O que faz |
 |---------|-----------|
-| `pnpm env:check` | Confere se os três arquivos têm as mesmas chaves, na mesma ordem |
-| `pnpm env:sync` | Envia `.env.production` para a Vercel (ambiente `production`) |
-| `pnpm env:sync:preview` | Envia `.env.local` para o ambiente `preview` |
+| `pnpm env:check` | Confere se os três arquivos têm exatamente as mesmas chaves, na mesma ordem. Falha apontando a divergência |
+| `pnpm env:sync` | Envia `.env.production` para a Vercel, ambiente `production`. Reenvia cada chave (remove e adiciona), então serve para criar e para atualizar |
+| `pnpm env:sync:preview` | O mesmo, com `.env.local` para o ambiente `preview` |
 
+`NEXT_PUBLIC_*` sobe como plaintext; qualquer outra chave sobe como secret.
 `DRY_RUN=1 pnpm env:sync` mostra o que seria enviado sem enviar nada.
-`NEXT_PUBLIC_*` sobe como plaintext; o resto sobe como secret.
 
 ### Deploy
 
 | Comando | O que faz |
 |---------|-----------|
+| `pnpm firebase:deploy` | **Publica tudo que este repositório tem de Firebase de uma vez.** Monta a lista de alvos lendo o `firebase.json` e o que existe no disco: hoje são as regras e os índices do Firestore; no dia em que entrarem `functions/`, `storage.rules` ou hosting, eles entram sozinhos na mesma passada, sem editar o script |
+| `pnpm firebase:rules` | Só as regras e os índices do Firestore, quando você quer publicar exatamente isso e mais nada |
 | `pnpm deploy` | Deploy de produção na Vercel |
-| `pnpm deploy:preview` | Deploy de preview |
-| `pnpm firebase:rules` | Publica `firestore.rules` e `firestore.indexes.json` |
+| `pnpm deploy:preview` | Deploy de preview na Vercel, com URL própria |
+
+`DRY_RUN=1 pnpm firebase:deploy` mostra os alvos que seriam publicados sem
+publicar nada.
 
 Primeira vez em uma máquina nova: `vercel link` e `firebase login`.
 
