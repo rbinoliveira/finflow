@@ -13,6 +13,24 @@ export function offlineStorageAvailable() {
   return typeof indexedDB !== 'undefined'
 }
 
+/**
+ * Da versão 1 para a 2 as categorias padrão deixaram de existir: cada conta
+ * cadastra as suas. O que já estava no aparelho é semeadura antiga — e a fila
+ * ainda podia reenviá-la depois de o servidor ter sido limpo. Zerar as duas
+ * stores dentro da própria transação de upgrade resolve sem pedir para a
+ * pessoa limpar os dados do site: se falhar, a versão não sobe e nada fica
+ * pela metade. As coleções são relidas do Firestore na abertura seguinte.
+ */
+function descartarSemeaduraAntiga(transaction: IDBTransaction | null) {
+  if (!transaction) return
+
+  for (const store of [OFFLINE_STORE.records, OFFLINE_STORE.outbox]) {
+    if (!transaction.db.objectStoreNames.contains(store)) continue
+
+    transaction.objectStore(store).clear()
+  }
+}
+
 function criarEstruturas(database: IDBDatabase) {
   if (!database.objectStoreNames.contains(OFFLINE_STORE.records)) {
     const records = database.createObjectStore(OFFLINE_STORE.records, {
@@ -41,7 +59,13 @@ export function openOfflineDatabase() {
         OFFLINE_DATABASE_VERSION,
       )
 
-      request.onupgradeneeded = () => criarEstruturas(request.result)
+      request.onupgradeneeded = (event) => {
+        criarEstruturas(request.result)
+
+        if (event.oldVersion > 0 && event.oldVersion < 2) {
+          descartarSemeaduraAntiga(request.transaction)
+        }
+      }
       request.onsuccess = () => resolve(request.result)
       request.onerror = () => reject(request.error ?? new Error('IndexedDB'))
     }).catch((error: unknown) => {

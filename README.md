@@ -10,7 +10,8 @@ PWA de gestão de gastos e receitas pessoais. Next.js 15 (App Router) + Firebase
 - Cartões com limite, dia de fechamento e dia de vencimento.
 - Parcelamento no cartão com alocação automática das parcelas nas faturas.
 - Ajuste do dia de pagamento de uma parcela, movendo-a de fatura.
-- Categorias de despesa e de receita, com cor e ícone.
+- Categorias de despesa e de receita, com cor e ícone — cada conta cadastra as suas;
+  lançamento sem categoria fica em “Sem categoria”.
 - **Offline-first**: tudo é gravado no aparelho e sobe sozinho quando a conexão volta.
 
 ## Acesso

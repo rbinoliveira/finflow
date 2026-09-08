@@ -1,5 +1,5 @@
 export const OFFLINE_DATABASE_NAME = 'finflow-offline'
-export const OFFLINE_DATABASE_VERSION = 1
+export const OFFLINE_DATABASE_VERSION = 2
 
 export const OFFLINE_STORE = {
   records: 'registros',

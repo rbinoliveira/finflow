@@ -1,5 +1,5 @@
 /* eslint-disable */
-const VERSION = 'v1'
+const VERSION = 'v2'
 const CACHE_SHELL = `finflow-shell-${VERSION}`
 const CACHE_ASSETS = `finflow-assets-${VERSION}`
 
@@ -8,6 +8,7 @@ const APP_SHELL = [
   '/transactions',
   '/cards',
   '/settings',
+  '/settings/categories',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
