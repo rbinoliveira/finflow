@@ -1,4 +1,5 @@
-export type CardBrand = 'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard' | 'other'
+export type CardBrand =
+  'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard' | 'other'
 
 export type CreditCard = {
   id: string

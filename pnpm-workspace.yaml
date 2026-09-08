@@ -1,5 +1,9 @@
+# Dependências autorizadas a rodar script de build na instalação (pnpm 11).
+# esbuild é o motor do tsx, usado pelos testes. Gerado por `pnpm approve-builds`.
 allowBuilds:
-  '@firebase/util': set this to true or false
-  protobufjs: set this to true or false
-  re2: set this to true or false
-  unrs-resolver: set this to true or false
+  '@firebase/util': true
+  esbuild: true
+  protobufjs: true
+  re2: true
+  sharp: true
+  unrs-resolver: true

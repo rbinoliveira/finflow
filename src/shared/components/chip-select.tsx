@@ -55,7 +55,7 @@ export function ChipSelect({
               'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium',
               'border transition-colors',
               active
-                ? 'border-transparent bg-accent/12 text-accent'
+                ? 'bg-accent/12 text-accent border-transparent'
                 : 'border-line text-ink-muted hover:border-line-strong hover:text-ink',
             )}
           >

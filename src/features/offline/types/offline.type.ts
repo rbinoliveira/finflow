@@ -1,8 +1,5 @@
 export type SyncCollection =
-  | 'cards'
-  | 'categories'
-  | 'transactions'
-  | 'installments'
+  'cards' | 'categories' | 'transactions' | 'installments'
 
 export type SyncOperation = 'create' | 'update' | 'delete'
 

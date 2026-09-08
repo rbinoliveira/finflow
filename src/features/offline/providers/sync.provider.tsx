@@ -70,7 +70,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
     const goOnline = () => {
       setOnline(true)
-      void sync()
+      sync().catch(() => undefined)
     }
     const goOffline = () => setOnline(false)
 
@@ -86,10 +86,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
   useEffect(() => {
     if (!user) return
 
-    void sync()
+    sync().catch(() => undefined)
 
     const timer = window.setInterval(() => {
-      void refreshPending()
+      refreshPending().catch(() => undefined)
     }, PENDING_POLL_MS)
 
     return () => window.clearInterval(timer)

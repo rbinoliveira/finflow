@@ -27,4 +27,4 @@ while IFS= read -r line <&3 || [ -n "$line" ]; do
   vercel env add "$key" "$TARGET" --value "$val" $flag --force -y >/dev/null 2>&1
 done 3< "$ENV_FILE"
 echo "✅ $secret_count secret(s), $plain_count plaintext em '$TARGET'."
-[ "$DRY_RUN" = "1" ] && echo "(DRY_RUN — nada foi enviado)"
+[ "$DRY_RUN" = "1" ] && echo "(DRY_RUN — nada foi enviado)" || true

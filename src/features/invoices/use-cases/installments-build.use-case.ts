@@ -1,9 +1,8 @@
+import type { CreditCard } from '@/features/cards/types/card.type'
 import { createLocalId } from '@/features/offline/utils/local-id.util'
 import type { Transaction } from '@/features/transactions/types/transaction.type'
 import { shiftMonth } from '@/shared/utils/date.util'
 import { splitCents } from '@/shared/utils/money.util'
-
-import type { CreditCard } from '@/features/cards/types/card.type'
 
 import type { Installment } from '../types/installment.type'
 import {

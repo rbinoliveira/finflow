@@ -3,13 +3,17 @@ export const APP_ROUTES = {
   transactions: '/transactions',
   cards: '/cards',
   settings: '/settings',
+  access: '/access',
 } as const
 
 export function cardRoute(cardId: string): string {
   return `${APP_ROUTES.cards}/${cardId}`
 }
 
-export function cardInvoiceRoute(cardId: string, invoiceMonth?: string): string {
+export function cardInvoiceRoute(
+  cardId: string,
+  invoiceMonth?: string,
+): string {
   const base = cardRoute(cardId)
 
   return invoiceMonth ? `${base}?month=${invoiceMonth}` : base

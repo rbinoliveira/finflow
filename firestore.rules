@@ -1,0 +1,96 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // O único administrador. Espelha `ADMIN_EMAIL` em
+    // `src/features/access/constants/access.constants.ts` — aquele decide o que
+    // a tela desenha, este decide o que o banco entrega. Mudar um sem o outro
+    // deixa a interface mentindo, nunca abre acesso.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'rubensojunior6@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Liberado pelo admin em `/members/{uid}`. O `get()` custa uma leitura por
+    // avaliação; é o preço de a liberação ser revogável sem redeploy de regra.
+    function isApproved(uid) {
+      return exists(/databases/$(database)/documents/members/$(uid))
+        && get(/databases/$(database)/documents/members/$(uid)).data.status == 'approved';
+    }
+
+    // ─── Quem pode entrar
+    //
+    // O usuário cria o próprio pedido e nada mais: não escolhe o `status` nem
+    // inventa um e-mail diferente do que está no token. Só o admin decide, e
+    // só ele enxerga a lista inteira.
+
+    match /members/{uid} {
+      allow get: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow list: if isAdmin();
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.data.status == 'pending'
+        && request.resource.data.email == request.auth.token.email;
+
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ─── Os dados de cada conta
+    //
+    // Finanças pessoais não têm um terceiro que precise ler o que outra pessoa
+    // gastou: nem o admin alcança `users/{uid}`. Ele decide quem entra, não o
+    // que cada um lança.
+
+    match /users/{uid} {
+
+      function isSelf() {
+        return request.auth != null
+          && request.auth.uid == uid
+          && request.auth.token.email_verified == true
+          && (isAdmin() || isApproved(uid));
+      }
+
+      // O identificador e a data de criação nascem com o documento; uma edição
+      // posterior que os troque criaria um registro diferente no mesmo endereço.
+      function preservedFields(fields) {
+        return request.resource.data.diff(resource.data).affectedKeys().hasAny(fields) == false;
+      }
+
+      allow read, write: if isSelf();
+
+      match /categories/{categoryId} {
+        allow read, create, delete: if isSelf();
+        allow update: if isSelf() && preservedFields(['id', 'createdAt']);
+      }
+
+      match /cards/{cardId} {
+        allow read, create, delete: if isSelf();
+        allow update: if isSelf() && preservedFields(['id', 'createdAt']);
+      }
+
+      match /transactions/{transactionId} {
+        allow read, create, delete: if isSelf();
+        allow update: if isSelf() && preservedFields(['id', 'createdAt']);
+      }
+
+      // A parcela guarda de qual compra e de qual cartão ela nasceu. Reescrever
+      // esse vínculo desligaria a parcela da despesa que a originou — o ajuste
+      // legítimo mexe em `invoiceMonth`, `dueDate` e `paid`.
+      match /installments/{installmentId} {
+        allow read, create, delete: if isSelf();
+        allow update: if isSelf()
+          && preservedFields(['id', 'createdAt', 'transactionId', 'cardId', 'number', 'total']);
+      }
+    }
+
+    // Nada fora de `members` e `users/{uid}` existe neste banco.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

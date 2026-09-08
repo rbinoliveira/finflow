@@ -12,6 +12,7 @@ export async function listTransactionsUseCase(
 
   return transactions.sort(
     (first, second) =>
-      second.date.localeCompare(first.date) || second.createdAt - first.createdAt,
+      second.date.localeCompare(first.date) ||
+      second.createdAt - first.createdAt,
   )
 }

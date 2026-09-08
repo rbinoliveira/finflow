@@ -12,6 +12,7 @@ export async function listInstallmentsUseCase(
 
   return installments.sort(
     (first, second) =>
-      first.dueDate.localeCompare(second.dueDate) || first.number - second.number,
+      first.dueDate.localeCompare(second.dueDate) ||
+      first.number - second.number,
   )
 }

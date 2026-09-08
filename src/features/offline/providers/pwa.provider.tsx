@@ -14,9 +14,10 @@ type PwaProviderProps = {
 
 export function PwaProvider({ children }: PwaProviderProps) {
   useEffect(() => {
-    void requestPersistentStorage()
+    requestPersistentStorage().catch(() => undefined)
 
-    if (process.env.NODE_ENV === 'production') void recordServiceWorker()
+    if (process.env.NODE_ENV === 'production')
+      recordServiceWorker().catch(() => undefined)
   }, [])
 
   return (

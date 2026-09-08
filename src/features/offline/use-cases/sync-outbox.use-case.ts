@@ -4,11 +4,14 @@ import { userCollectionPath } from '@/features/offline/constants/firestore-colle
 import { SYNC_RETRY_LIMIT } from '@/features/offline/constants/offline-storage.constants'
 import type { OutboxMutation } from '@/features/offline/types/offline.type'
 import {
+  readMirrorDocumentUseCase,
+  writeMirrorUseCase,
+} from '@/features/offline/use-cases/offline-mirror.use-case'
+import {
   listOutboxUseCase,
   removeMutationUseCase,
   updateMutationUseCase,
 } from '@/features/offline/use-cases/outbox.use-case'
-import { readMirrorDocumentUseCase, writeMirrorUseCase } from '@/features/offline/use-cases/offline-mirror.use-case'
 import { isOnline } from '@/features/offline/utils/network-status.util'
 import { db } from '@/shared/libs/firebase'
 
@@ -37,9 +40,7 @@ async function applyMutation(
   })
 }
 
-async function settleMirror(
-  mutation: OutboxMutation,
-): Promise<void> {
+async function settleMirror(mutation: OutboxMutation): Promise<void> {
   if (mutation.operation === 'delete') return
 
   const stored = await readMirrorDocumentUseCase(

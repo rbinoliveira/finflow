@@ -49,7 +49,9 @@ export function listOpenInvoices(
   const meses = new Set(
     installments
       .filter((installment) => !installment.paid)
-      .map((installment) => `${installment.cardId}|${installment.invoiceMonth}`),
+      .map(
+        (installment) => `${installment.cardId}|${installment.invoiceMonth}`,
+      ),
   )
 
   const atual = currentMonth()

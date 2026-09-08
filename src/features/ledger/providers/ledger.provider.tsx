@@ -80,7 +80,9 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
 
       setData({
         categories:
-          comPadrao === categories ? categories : await listCategoriesUseCase(uid),
+          comPadrao === categories
+            ? categories
+            : await listCategoriesUseCase(uid),
         cards,
         transactions,
         installments,
@@ -96,13 +98,13 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
 
   useEffect(() => {
     setLoading(true)
-    void reload()
+    reload().catch(() => undefined)
   }, [reload])
 
   /* Voltar a ter rede não muda só o envio: o que outro aparelho gravou
      enquanto este estava fora só aparece relendo as coleções. */
   useEffect(() => {
-    if (online && uid) void reload()
+    if (online && uid) reload().catch(() => undefined)
   }, [online, uid, reload])
 
   const value = useMemo(

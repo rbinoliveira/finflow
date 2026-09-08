@@ -45,7 +45,7 @@ export function DayPicker({
                 'numeric rounded-lg py-1.5 text-xs font-medium transition-colors',
                 active
                   ? 'bg-accent text-[color:var(--color-base)]'
-                  : 'text-ink-muted hover:bg-white/6 hover:text-ink',
+                  : 'text-ink-muted hover:text-ink hover:bg-white/6',
               )}
             >
               {day}

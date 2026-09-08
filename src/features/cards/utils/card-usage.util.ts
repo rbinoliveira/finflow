@@ -20,8 +20,7 @@ export function buildCardUsage(
     card,
     usedCents,
     availableCents,
-    usedPercent:
-      card.limitCents > 0 ? (usedCents / card.limitCents) * 100 : 0,
+    usedPercent: card.limitCents > 0 ? (usedCents / card.limitCents) * 100 : 0,
     openInvoiceCents: usedCents,
   }
 }

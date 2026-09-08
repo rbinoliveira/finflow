@@ -59,7 +59,7 @@ export async function saveDocumentUseCase<T extends SyncedDocument>(
     payload: document as unknown as Record<string, unknown>,
   })
 
-  void syncOutboxUseCase(uid)
+  syncOutboxUseCase(uid).catch(() => undefined)
 
   return document
 }
@@ -80,7 +80,7 @@ export async function saveManyDocumentsUseCase<T extends SyncedDocument>(
     })
   }
 
-  void syncOutboxUseCase(uid)
+  syncOutboxUseCase(uid).catch(() => undefined)
 
   return documents
 }
@@ -99,7 +99,7 @@ export async function removeDocumentUseCase(
     payload: null,
   })
 
-  void syncOutboxUseCase(uid)
+  syncOutboxUseCase(uid).catch(() => undefined)
 }
 
 export async function removeManyDocumentsUseCase(
@@ -118,5 +118,5 @@ export async function removeManyDocumentsUseCase(
     })
   }
 
-  void syncOutboxUseCase(uid)
+  syncOutboxUseCase(uid).catch(() => undefined)
 }
