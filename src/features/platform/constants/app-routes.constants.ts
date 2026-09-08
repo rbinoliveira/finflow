@@ -2,6 +2,7 @@ export const APP_ROUTES = {
   home: '/',
   transactions: '/transactions',
   cards: '/cards',
+  recurrences: '/recurrences',
   settings: '/settings',
   access: '/access',
 } as const

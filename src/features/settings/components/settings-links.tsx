@@ -26,6 +26,12 @@ const LINKS: SettingsLink[] = [
     hint: 'Limite, fechamento e vencimento',
     emoji: '💳',
   },
+  {
+    href: APP_ROUTES.recurrences,
+    label: 'Recorrências',
+    hint: 'Contas que se repetem todo mês',
+    emoji: '🔁',
+  },
 ]
 
 const ADMIN_LINK: SettingsLink = {

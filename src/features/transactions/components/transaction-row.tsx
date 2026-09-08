@@ -27,6 +27,7 @@ export function TransactionRow({
     PAYMENT_METHOD_LABEL[transaction.method],
     cardName,
     transaction.installments > 1 ? `${transaction.installments}×` : null,
+    transaction.recurrenceId ? 'recorrente' : null,
   ]
     .filter(Boolean)
     .join(' · ')

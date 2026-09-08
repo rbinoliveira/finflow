@@ -78,6 +78,14 @@ service cloud.firestore {
         allow update: if isSelf() && preservedFields(['id', 'createdAt']);
       }
 
+      // A regra da conta que se repete. O lançamento nasce dela, não o
+      // contrário: apagar a regra encerra a série e deixa de pé o que já foi
+      // lançado.
+      match /recurrences/{recurrenceId} {
+        allow read, create, delete: if isSelf();
+        allow update: if isSelf() && preservedFields(['id', 'createdAt']);
+      }
+
       // A parcela guarda de qual compra e de qual cartão ela nasceu. Reescrever
       // esse vínculo desligaria a parcela da despesa que a originou — o ajuste
       // legítimo mexe em `invoiceMonth`, `dueDate` e `paid`.

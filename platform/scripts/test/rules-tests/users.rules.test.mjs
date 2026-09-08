@@ -189,6 +189,33 @@ describe('users/{uid}', () => {
     await assertFails(updateDoc(reference, { cardId: 'outro' }))
   })
 
+  it('a recorrência vive na conta e não sai dela', async () => {
+    const reference = doc(memberDb(), `users/${MEMBER}/recurrences/internet`)
+
+    await assertSucceeds(
+      setDoc(reference, {
+        id: 'internet',
+        kind: 'expense',
+        description: 'Internet',
+        amountCents: 9990,
+        dayOfMonth: 10,
+        everyMonths: 1,
+        startMonth: '2026-09',
+        endMonth: null,
+        status: 'active',
+        createdAt: 1,
+        updatedAt: 1,
+      }),
+    )
+
+    await assertSucceeds(updateDoc(reference, { amountCents: 11990 }))
+    await assertSucceeds(updateDoc(reference, { status: 'paused' }))
+    await assertFails(updateDoc(reference, { createdAt: 999 }))
+    await assertFails(
+      getDoc(doc(adminDb(), `users/${MEMBER}/recurrences/internet`)),
+    )
+  })
+
   it('nada existe fora de members e users/{uid}', async () => {
     const reference = doc(memberDb(), 'admin/qualquer')
 

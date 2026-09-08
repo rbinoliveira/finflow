@@ -110,9 +110,20 @@ export function shortDateLabel(iso: string): string {
   return `${day}/${month}`
 }
 
-export function daysUntil(iso: string): number {
-  const target = fromIsoDate(iso).getTime()
-  const today = fromIsoDate(todayIso()).getTime()
+export function daysBetween(from: string, to: string): number {
+  const inicio = fromIsoDate(from).getTime()
+  const fim = fromIsoDate(to).getTime()
 
-  return Math.round((target - today) / 86_400_000)
+  return Math.round((fim - inicio) / 86_400_000)
+}
+
+export function daysUntil(iso: string): number {
+  return daysBetween(todayIso(), iso)
+}
+
+export function monthsBetween(from: string, to: string): number {
+  const [fromYear, fromMonth] = from.split('-').map(Number)
+  const [toYear, toMonth] = to.split('-').map(Number)
+
+  return (toYear - fromYear) * 12 + (toMonth - fromMonth)
 }

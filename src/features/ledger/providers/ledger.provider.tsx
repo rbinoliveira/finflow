@@ -16,6 +16,7 @@ import { listCategoriesUseCase } from '@/features/categories/use-cases/categorie
 import { listInstallmentsUseCase } from '@/features/invoices/use-cases/installments-list.use-case'
 import { useSync } from '@/features/offline/providers/sync.provider'
 import { useUserScope } from '@/features/platform/hooks/user-scope.hook'
+import { listRecurrencesUseCase } from '@/features/recurrences/use-cases/recurrences-list.use-case'
 import { listTransactionsUseCase } from '@/features/transactions/use-cases/transactions-list.use-case'
 import {
   describeFirestoreError,
@@ -36,6 +37,7 @@ const EMPTY_LEDGER: LedgerData = {
   cards: [],
   transactions: [],
   installments: [],
+  recurrences: [],
 }
 
 const LedgerContext = createContext<LedgerContextValue>({
@@ -67,16 +69,16 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
     setError(null)
 
     try {
-      const [categories, cards, transactions, installments] = await Promise.all(
-        [
+      const [categories, cards, transactions, installments, recurrences] =
+        await Promise.all([
           listCategoriesUseCase(uid),
           listCardsUseCase(uid),
           listTransactionsUseCase(uid),
           listInstallmentsUseCase(uid),
-        ],
-      )
+          listRecurrencesUseCase(uid),
+        ])
 
-      setData({ categories, cards, transactions, installments })
+      setData({ categories, cards, transactions, installments, recurrences })
     } catch (caught) {
       logFirestoreError('ledger.provider', caught)
       setError(describeFirestoreError(caught))

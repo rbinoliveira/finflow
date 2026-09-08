@@ -122,6 +122,7 @@ export function TransactionFormSheet({
       description: values.description.trim(),
       cardId: values.method === 'card' ? values.cardId : null,
       installments: values.method === 'card' ? values.installments : 1,
+      recurrenceId: transaction?.recurrenceId ?? null,
     }
 
     const context = { cards, installments }

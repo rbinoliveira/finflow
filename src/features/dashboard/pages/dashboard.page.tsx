@@ -13,6 +13,9 @@ import {
 } from '@/features/ledger/utils/ledger-summary.util'
 import { APP_ROUTES } from '@/features/platform/constants/app-routes.constants'
 import { useFirebaseAuth } from '@/features/platform/providers/firebase-auth.provider'
+import { RecurrenceBillSheet } from '@/features/recurrences/components/recurrence-bill-sheet'
+import type { RecurrenceBill } from '@/features/recurrences/types/recurrence.type'
+import { openBills } from '@/features/recurrences/utils/recurrence-schedule.util'
 import { TransactionActionsSheet } from '@/features/transactions/components/transaction-actions-sheet'
 import { TransactionRow } from '@/features/transactions/components/transaction-row'
 import { useTransactionComposer } from '@/features/transactions/providers/transaction-composer.provider'
@@ -23,6 +26,7 @@ import { MonthSwitcher } from '@/shared/components/month-switcher'
 import { SectionHeader } from '@/shared/components/section-header'
 import { currentMonth } from '@/shared/utils/date.util'
 
+import { DashboardOpenBills } from '../components/dashboard-open-bills'
 import { DashboardOpenInvoices } from '../components/dashboard-open-invoices'
 import { DashboardSpendingBreakdown } from '../components/dashboard-spending-breakdown'
 import { DashboardSummary } from '../components/dashboard-summary'
@@ -42,6 +46,7 @@ export function DashboardPage() {
     categories,
     cards,
     installments,
+    recurrences,
     loading,
     error,
     reload,
@@ -51,6 +56,7 @@ export function DashboardPage() {
 
   const [month, setMonth] = useState(currentMonth())
   const [selected, setSelected] = useState<Transaction | null>(null)
+  const [bill, setBill] = useState<RecurrenceBill | null>(null)
 
   const doMes = useMemo(
     () => transactionsOfMonth(transactions, month),
@@ -70,6 +76,10 @@ export function DashboardPage() {
     () => listOpenInvoices(cards, installments),
     [cards, installments],
   )
+  const contasAbertas = useMemo(
+    () => openBills(recurrences, transactions),
+    [recurrences, transactions],
+  )
 
   const recentes = doMes.slice(0, RECENT_TRANSACTIONS_LIMIT)
   const primeiroNome = user?.displayName?.split(' ')[0]
@@ -87,6 +97,12 @@ export function DashboardPage() {
       </header>
 
       <DashboardSummary summary={summary} />
+
+      <DashboardOpenBills
+        bills={contasAbertas}
+        categories={categories}
+        onSelect={setBill}
+      />
 
       <DashboardOpenInvoices invoices={openInvoices} cards={cards} />
 
@@ -144,6 +160,8 @@ export function DashboardPage() {
           </Card>
         </DataHandler>
       </section>
+
+      <RecurrenceBillSheet bill={bill} onClose={() => setBill(null)} />
 
       <TransactionActionsSheet
         transaction={selected}

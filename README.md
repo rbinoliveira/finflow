@@ -33,7 +33,7 @@ escrever. `pnpm test:rules` cobre isso no emulador.
 src/
 ├── app/        # Rotas — wrappers finos das páginas de feature
 ├── features/   # Domínio: platform, offline, ledger, categories, cards,
-│               # transactions, invoices, dashboard, settings
+│               # transactions, recurrences, invoices, dashboard, settings
 └── shared/     # Reuso entre features (componentes, utils, libs, config)
 ```
 
@@ -101,8 +101,8 @@ que o use só encarece a escrita. Quando alguma consulta de verdade precisar de
 um, declare o índice **dela**, não um conjunto especulativo.
 
 - `members/{uid}` — quem pode entrar. Decisão do admin.
-- `users/{uid}/{categories,cards,transactions,installments}` — os dados de cada
-  conta. Nem o admin lê os lançamentos de outra pessoa.
+- `users/{uid}/{categories,cards,transactions,installments,recurrences}` — os
+  dados de cada conta. Nem o admin lê os lançamentos de outra pessoa.
 
 O e-mail do admin aparece em dois lugares que precisam andar juntos:
 `ADMIN_EMAIL` em `src/features/access/constants/access.constants.ts` e
@@ -111,6 +111,43 @@ O e-mail do admin aparece em dois lugares que precisam andar juntos:
 **Domínios autorizados:** ao publicar na Vercel, adicione o domínio em
 *Authentication → Settings → Authorized domains* no console do Firebase, senão
 o login com Google falha em produção.
+
+## Recorrências
+
+Conta que se repete — internet, aluguel, assinatura — vira uma regra em
+`users/{uid}/recurrences`: valor, dia do mês, intervalo (mensal a anual), mês
+inicial e mês final opcional.
+
+**A ocorrência não é gerada, é derivada.** Nada é gravado por mês: a regra
+responde por todos eles de uma vez, passados e futuros, e a tela monta a lista
+na hora (`billsOfMonth`). Abrir maio de 2027 mostra a conta de maio de 2027 sem
+que nada tenha nascido para isso.
+
+O único fato guardado é o **pagamento**, e ele é o lançamento comum carregando
+`recurrenceId`. Uma ocorrência está paga quando existe um lançamento daquela
+regra naquele mês — é essa a definição, não uma flag à parte. Disso decorre:
+
+- **marcar como paga é lançar**, com a data do vencimento da ocorrência, não a
+  de hoje: quitar em setembro a conta de março tem de pesar em março, senão o
+  acerto de quem ficou meses fora reescreveria o mês em que ele voltou;
+- **desfazer é apagar** aquele lançamento, e a conta volta ao aberto;
+- **o valor pago manda.** Luz e água chegam diferentes do previsto, então a
+  conta paga vale o que saiu; a regra só dá o palpite inicial;
+- **as somas do app não mudaram.** Resumo, quebra por categoria e por origem
+  continuam lendo `transactions` — o que está em aberto é previsão e aparece
+  separado, nunca dentro do saldo do mês.
+
+Quem passou seis meses fora encontra as seis em aberto numa lista só, no início
+(`openBills`), e acerta em seis toques em vez de seis navegações. Pausar uma
+regra a tira de todos os meses; `endMonth` encerra a série.
+
+Dia 31 numa recorrência cai no último dia dos meses curtos, pelo mesmo motivo
+que o vencimento da fatura cai (`dayInMonthIso`).
+
+Nada disso precisa de servidor: não há geração agendada para atrasar, e por
+isso não há cron nem Cloud Function no projeto. O dia em que precisar de um
+será por notificação (*"sua internet vence amanhã"*), que é o que o cliente
+não consegue fazer — e não por causa das contas em si.
 
 ## Offline
 

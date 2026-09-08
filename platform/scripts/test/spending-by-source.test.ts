@@ -46,6 +46,7 @@ function despesa(
     cardId,
     date: '2026-09-10',
     installments: 1,
+    recurrenceId: null,
     createdAt: 1,
     updatedAt: 1,
   }

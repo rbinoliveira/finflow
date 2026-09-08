@@ -7,6 +7,7 @@ export const SYNC_COLLECTIONS: SyncCollection[] = [
   'cards',
   'transactions',
   'installments',
+  'recurrences',
 ]
 
 export function userCollectionPath(

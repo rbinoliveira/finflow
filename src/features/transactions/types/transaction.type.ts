@@ -12,6 +12,7 @@ export type Transaction = {
   cardId: string | null
   date: string
   installments: number
+  recurrenceId: string | null
   createdAt: number
   updatedAt: number
 }
@@ -25,6 +26,7 @@ export type TransactionInput = {
   cardId: string | null
   date: string
   installments: number
+  recurrenceId: string | null
 }
 
 export type TransactionGroup = {
