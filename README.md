@@ -93,6 +93,13 @@ Primeira vez em uma máquina nova: `vercel link` e `firebase login`.
 Projeto `finflow-785df`. As regras estão em `firestore.rules`, os índices em
 `firestore.indexes.json`.
 
+**`firestore.indexes.json` está vazio de propósito.** O app não filtra nem
+ordena no Firestore: `listCollectionUseCase` baixa a coleção inteira, guarda no
+espelho do IndexedDB, e mês, tipo, categoria e ordenação são resolvidos em
+memória — é isso que faz tudo funcionar offline. Índice composto sem consulta
+que o use só encarece a escrita. Quando alguma consulta de verdade precisar de
+um, declare o índice **dela**, não um conjunto especulativo.
+
 - `members/{uid}` — quem pode entrar. Decisão do admin.
 - `users/{uid}/{categories,cards,transactions,installments}` — os dados de cada
   conta. Nem o admin lê os lançamentos de outra pessoa.
