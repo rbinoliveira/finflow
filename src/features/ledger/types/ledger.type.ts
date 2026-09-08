@@ -16,8 +16,10 @@ export type MonthSummary = {
   balanceCents: number
 }
 
-export type CategorySpending = {
-  categoryId: string | null
+/** Uma fatia do gasto do mês — serve tanto para categoria quanto para forma de
+ *  pagamento, porque a tela desenha as duas do mesmo jeito. */
+export type SpendingSlice = {
+  id: string
   name: string
   color: string
   emoji: string

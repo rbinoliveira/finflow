@@ -7,6 +7,7 @@ import { listOpenInvoices } from '@/features/invoices/utils/invoice-build.util'
 import { useLedger } from '@/features/ledger/providers/ledger.provider'
 import {
   spendingByCategory,
+  spendingBySource,
   summarizeMonth,
   transactionsOfMonth,
 } from '@/features/ledger/utils/ledger-summary.util'
@@ -22,12 +23,17 @@ import { MonthSwitcher } from '@/shared/components/month-switcher'
 import { SectionHeader } from '@/shared/components/section-header'
 import { currentMonth } from '@/shared/utils/date.util'
 
-import { DashboardCategoryBreakdown } from '../components/dashboard-category-breakdown'
 import { DashboardOpenInvoices } from '../components/dashboard-open-invoices'
+import { DashboardSpendingBreakdown } from '../components/dashboard-spending-breakdown'
 import { DashboardSummary } from '../components/dashboard-summary'
 import {
+  BREAKDOWN_LIMIT,
+  CATEGORY_BREAKDOWN_TITLE,
   MESSAGE_EMPTY_MONTH,
+  MESSAGE_NO_SPENDING,
   RECENT_TRANSACTIONS_LIMIT,
+  SOURCE_BREAKDOWN_DESCRIPTION,
+  SOURCE_BREAKDOWN_TITLE,
 } from '../constants/dashboard.constants'
 
 export function DashboardPage() {
@@ -53,8 +59,12 @@ export function DashboardPage() {
 
   const summary = useMemo(() => summarizeMonth(doMes), [doMes])
   const spending = useMemo(
-    () => spendingByCategory(doMes, categories).slice(0, 6),
+    () => spendingByCategory(doMes, categories).slice(0, BREAKDOWN_LIMIT),
     [doMes, categories],
+  )
+  const bySource = useMemo(
+    () => spendingBySource(doMes, cards).slice(0, BREAKDOWN_LIMIT),
+    [doMes, cards],
   )
   const openInvoices = useMemo(
     () => listOpenInvoices(cards, installments),
@@ -80,7 +90,18 @@ export function DashboardPage() {
 
       <DashboardOpenInvoices invoices={openInvoices} cards={cards} />
 
-      <DashboardCategoryBreakdown spending={spending} />
+      <DashboardSpendingBreakdown
+        title={SOURCE_BREAKDOWN_TITLE}
+        description={SOURCE_BREAKDOWN_DESCRIPTION}
+        spending={bySource}
+        emptyMessage={MESSAGE_NO_SPENDING}
+      />
+
+      <DashboardSpendingBreakdown
+        title={CATEGORY_BREAKDOWN_TITLE}
+        spending={spending}
+        emptyMessage={MESSAGE_NO_SPENDING}
+      />
 
       <section>
         <SectionHeader
