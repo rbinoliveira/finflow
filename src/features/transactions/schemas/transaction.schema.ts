@@ -7,7 +7,7 @@ export const transactionSchema = z
     kind: z.enum(['expense', 'income']),
     description: z.string().trim().min(1, 'Descreva o lançamento.').max(80),
     amountCents: z.number().int().positive('Informe um valor maior que zero.'),
-    categoryId: z.string().min(1, 'Escolha uma categoria.'),
+    categoryId: z.string().nullable(),
     method: z.enum(['pix', 'card', 'debit', 'cash', 'boleto']),
     cardId: z.string().nullable(),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida.'),

@@ -1,3 +1,4 @@
+import { UNCATEGORIZED_LABEL } from '@/features/categories/constants/categories.constants'
 import type { Category } from '@/features/categories/types/category.type'
 import type { Transaction } from '@/features/transactions/types/transaction.type'
 import { monthOf } from '@/shared/utils/date.util'
@@ -5,7 +6,7 @@ import { monthOf } from '@/shared/utils/date.util'
 import type { CategorySpending, MonthSummary } from '../types/ledger.type'
 
 const UNCATEGORIZED = {
-  name: 'Sem categoria',
+  name: UNCATEGORIZED_LABEL,
   color: '#94A3B8',
   emoji: '🧾',
 }

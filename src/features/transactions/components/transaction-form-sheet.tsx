@@ -4,6 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
+import {
+  MESSAGE_CATEGORY_OPTIONAL,
+  UNCATEGORIZED_LABEL,
+} from '@/features/categories/constants/categories.constants'
 import { useLedger } from '@/features/ledger/providers/ledger.provider'
 import { BottomSheet } from '@/shared/components/bottom-sheet'
 import { Button } from '@/shared/components/button'
@@ -32,6 +36,8 @@ import {
 } from '../use-cases/transaction-save.use-case'
 import { TransactionDateField } from './transaction-date-field'
 
+const UNCATEGORIZED_VALUE = ''
+
 type TransactionFormSheetProps = {
   open: boolean
   kind: TransactionKind
@@ -48,7 +54,7 @@ function defaultValues(
       kind: transaction.kind,
       description: transaction.description,
       amountCents: transaction.amountCents,
-      categoryId: transaction.categoryId ?? '',
+      categoryId: transaction.categoryId,
       method: transaction.method,
       cardId: transaction.cardId,
       date: transaction.date,
@@ -60,7 +66,7 @@ function defaultValues(
     kind,
     description: '',
     amountCents: 0,
-    categoryId: '',
+    categoryId: null,
     method: 'pix',
     cardId: null,
     date: todayIso(),
@@ -151,7 +157,7 @@ export function TransactionFormSheet({
               value={field.value}
               onChange={(value) => {
                 field.onChange(value)
-                setValue('categoryId', '')
+                setValue('categoryId', null)
                 setValue('method', 'pix')
                 setValue('cardId', null)
                 setValue('installments', 1)
@@ -203,14 +209,18 @@ export function TransactionFormSheet({
               </span>
               <ChipSelect
                 label="Categoria"
-                value={field.value || null}
-                options={categoryOptions}
-                onChange={field.onChange}
-                emptyMessage="Cadastre uma categoria em Ajustes."
+                value={field.value ?? UNCATEGORIZED_VALUE}
+                options={[
+                  { value: UNCATEGORIZED_VALUE, label: UNCATEGORIZED_LABEL },
+                  ...categoryOptions,
+                ]}
+                onChange={(value) =>
+                  field.onChange(value === UNCATEGORIZED_VALUE ? null : value)
+                }
               />
-              {errors.categoryId && (
-                <span className="text-danger text-[11px]">
-                  {errors.categoryId.message}
+              {categoryOptions.length === 0 && (
+                <span className="text-ink-faint text-[11px]">
+                  {MESSAGE_CATEGORY_OPTIONAL}
                 </span>
               )}
             </div>

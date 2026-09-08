@@ -14,7 +14,7 @@ export function AppBottomNavigation() {
 
   return (
     <nav className="border-line bg-surf shrink-0 border-t">
-      <div className="max-w-app md:max-w-app-wide safe-bottom mx-auto grid w-full grid-cols-4 gap-0.5 px-3 pt-2.5">
+      <div className="max-w-app md:max-w-app-wide safe-bottom mx-auto grid w-full grid-cols-3 gap-0.5 px-3 pt-2.5">
         {APP_NAVIGATION.map((destination) => (
           <AppNavigationItem
             key={destination.href}

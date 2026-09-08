@@ -1,5 +1,4 @@
 import {
-  CardIcon,
   HomeIcon,
   ListIcon,
   SettingsIcon,
@@ -10,6 +9,5 @@ import type { NavigationDestination } from '@/features/platform/types/navigation
 export const APP_NAVIGATION: NavigationDestination[] = [
   { label: 'Início', href: APP_ROUTES.home, icon: HomeIcon },
   { label: 'Lançamentos', href: APP_ROUTES.transactions, icon: ListIcon },
-  { label: 'Cartões', href: APP_ROUTES.cards, icon: CardIcon },
   { label: 'Ajustes', href: APP_ROUTES.settings, icon: SettingsIcon },
 ]

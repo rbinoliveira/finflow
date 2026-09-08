@@ -7,12 +7,12 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
 import { listCardsUseCase } from '@/features/cards/use-cases/cards-list.use-case'
 import { listCategoriesUseCase } from '@/features/categories/use-cases/categories-list.use-case'
-import { seedCategoriesUseCase } from '@/features/categories/use-cases/categories-seed.use-case'
 import { listInstallmentsUseCase } from '@/features/invoices/use-cases/installments-list.use-case'
 import { useSync } from '@/features/offline/providers/sync.provider'
 import { useUserScope } from '@/features/platform/hooks/user-scope.hook'
@@ -76,17 +76,7 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         ],
       )
 
-      const comPadrao = await seedCategoriesUseCase(uid, categories)
-
-      setData({
-        categories:
-          comPadrao === categories
-            ? categories
-            : await listCategoriesUseCase(uid),
-        cards,
-        transactions,
-        installments,
-      })
+      setData({ categories, cards, transactions, installments })
     } catch (caught) {
       logFirestoreError('ledger.provider', caught)
       setError(describeFirestoreError(caught))
@@ -102,8 +92,17 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
   }, [reload])
 
   /* Voltar a ter rede não muda só o envio: o que outro aparelho gravou
-     enquanto este estava fora só aparece relendo as coleções. */
+     enquanto este estava fora só aparece relendo as coleções. A primeira
+     passada é ignorada — a abertura já é coberta pelo efeito acima, e duas
+     leituras simultâneas do mesmo estado disputariam a mesma escrita. */
+  const primeiraRede = useRef(true)
+
   useEffect(() => {
+    if (primeiraRede.current) {
+      primeiraRede.current = false
+      return
+    }
+
     if (online && uid) reload().catch(() => undefined)
   }, [online, uid, reload])
 

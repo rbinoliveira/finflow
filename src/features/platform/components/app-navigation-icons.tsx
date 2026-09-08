@@ -32,22 +32,6 @@ export function ListIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-export function CardIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.7}
-      {...props}
-    >
-      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
-      <path d="M3 10h18" strokeLinecap="round" />
-      <path d="M6.5 14.5h3.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 export function SettingsIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

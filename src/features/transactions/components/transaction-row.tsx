@@ -1,5 +1,6 @@
 'use client'
 
+import { UNCATEGORIZED_LABEL } from '@/features/categories/constants/categories.constants'
 import type { Category } from '@/features/categories/types/category.type'
 import { cn } from '@/shared/utils/cn.util'
 import { formatMoney } from '@/shared/utils/money.util'
@@ -49,7 +50,7 @@ export function TransactionRow({
           {transaction.description}
         </span>
         <span className="text-ink-faint truncate text-[11px]">
-          {category?.name ?? 'Sem categoria'} · {detalhe}
+          {category?.name ?? UNCATEGORIZED_LABEL} · {detalhe}
         </span>
       </span>
 
