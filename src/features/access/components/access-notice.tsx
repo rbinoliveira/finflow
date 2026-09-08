@@ -17,7 +17,7 @@ export function AccessNotice({ title, message }: AccessNoticeProps) {
   const { user, signOut } = useFirebaseAuth()
 
   return (
-    <div className="bg-base flex min-h-dvh flex-col items-center justify-center gap-7 px-8">
+    <div className="bg-base safe-top flex min-h-dvh flex-col items-center justify-center gap-7 px-8">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-ink text-2xl">{title}</h1>
         <p className="text-ink-muted max-w-[34ch] text-sm leading-[1.7]">

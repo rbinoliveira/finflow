@@ -23,7 +23,7 @@ export function AppSignInGate({ children }: AppSignInGateProps) {
 
   if (status === 'sign-in') {
     return (
-      <div className="bg-base flex min-h-dvh flex-col items-center justify-center gap-8 px-8">
+      <div className="bg-base safe-top flex min-h-dvh flex-col items-center justify-center gap-8 px-8">
         <div className="flex flex-col items-center gap-3 text-center">
           <span aria-hidden className="text-4xl">
             📊

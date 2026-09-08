@@ -12,7 +12,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="bg-base flex min-h-dvh flex-col">
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-app md:max-w-app-wide mx-auto w-full px-5 pt-4 pb-8 md:px-8 md:pt-6">
+        <div className="max-w-app md:max-w-app-wide safe-top mx-auto w-full px-5 pb-8 md:px-8">
           <SyncIndicator />
           {children}
         </div>
