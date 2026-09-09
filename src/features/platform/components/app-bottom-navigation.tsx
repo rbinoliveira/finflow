@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 
 import { AppNavigationItem } from '@/features/platform/components/app-navigation-item'
+import { AppQuickAddButton } from '@/features/platform/components/app-quick-add-button'
 import { APP_NAVIGATION } from '@/features/platform/constants/app-navigation.constants'
 import { APP_ROUTES } from '@/features/platform/constants/app-routes.constants'
 
@@ -14,7 +15,9 @@ export function AppBottomNavigation() {
 
   return (
     <nav className="border-line bg-surf shrink-0 border-t">
-      <div className="max-w-app md:max-w-app-wide safe-bottom mx-auto grid w-full grid-cols-3 gap-0.5 px-3 pt-2.5">
+      {/* Uma coluna a mais do que os destinos: a última é do botão de lançar,
+          para que nenhum toque caia entre os dois. */}
+      <div className="max-w-app md:max-w-app-wide safe-bottom mx-auto grid w-full grid-cols-4 gap-0.5 px-3 pt-2.5">
         {APP_NAVIGATION.map((destination) => (
           <AppNavigationItem
             key={destination.href}
@@ -22,6 +25,8 @@ export function AppBottomNavigation() {
             active={isActive(destination.href)}
           />
         ))}
+
+        <AppQuickAddButton />
       </div>
     </nav>
   )

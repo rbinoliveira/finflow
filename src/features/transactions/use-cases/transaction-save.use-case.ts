@@ -40,7 +40,9 @@ async function syncInstallments(
 
   const card = cardOf(transaction, context.cards)
 
-  if (!card || transaction.kind !== 'expense') return
+  /* Alimentação não tem fatura: a compra sai do saldo na hora, então não há
+     parcela para agendar. */
+  if (!card || card.kind === 'meal' || transaction.kind !== 'expense') return
 
   await saveManyDocumentsUseCase(
     uid,

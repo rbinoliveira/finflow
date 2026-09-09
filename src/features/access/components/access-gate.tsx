@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react'
 
+import { AppSplash } from '@/features/platform/components/app-splash'
+
 import {
   BLOCKED_TITLE,
   MESSAGE_BLOCKED,
@@ -19,7 +21,7 @@ export function AccessGate({ children }: AccessGateProps) {
   const { state } = useAccess()
 
   if (state === 'unknown') {
-    return <div className="bg-base min-h-dvh" />
+    return <AppSplash />
   }
 
   if (state === 'pending') {

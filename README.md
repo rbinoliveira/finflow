@@ -163,6 +163,44 @@ isso não há cron nem Cloud Function no projeto. O dia em que precisar de um
 será por notificação (*"sua internet vence amanhã"*), que é o que o cliente
 não consegue fazer — e não por causa das contas em si.
 
+## Dois tipos de cartão
+
+`CreditCard.kind` separa **crédito** de **alimentação**. São o mesmo objeto
+porque são a mesma escolha na hora de lançar; o que muda é o que cada um
+responde.
+
+| | Crédito | Alimentação |
+|---|---|---|
+| Configura | limite, fechamento, vencimento | saldo |
+| Compra gera | parcela, que entra numa fatura | nada — sai do saldo |
+| A tela mostra | limite usado e fatura aberta | quanto sobrou |
+
+O saldo é **derivado, não guardado e mutado**: `balanceCents` é o que a pessoa
+informou e `balanceSince` quando informou, e o saldo de agora é a diferença
+para as despesas lançadas daquela data em diante. Editar cor ou nome não
+reinicia nada: só mexer no próprio saldo move `balanceSince`.
+
+Informar o saldo é manual e mensal **de propósito**. O valor do vale muda de um
+mês para o outro, então não há regra que o app pudesse aplicar sozinho sem
+inventar um número — virou o mês, a pessoa digita o que entrou e a contagem
+recomeça dali. Como o valor informado é o que o app do cartão mostra naquele
+dia, o que foi gasto antes já está embutido nele, e a conta se autocorrige.
+
+**O saldo pode ficar negativo.** Gastar mais do que havia é justamente o que
+precisa aparecer, e um saldo preso em zero esconderia o estouro — a tela mostra
+o negativo em vermelho. (No cartão de crédito, o disponível segue com piso em
+zero: estourar limite é outra conversa, e não foi mexido.)
+
+Guardar um número e ir subtraindo dele a cada compra pareceria mais direto, mas
+uma edição, uma exclusão ou uma gravação repetida pela fila offline sairiam do
+lugar sem ninguém perceber. Derivar é a mesma escolha feita na fatura e nas
+contas recorrentes.
+
+Alimentação não tem parcela nem data de pagamento: os dois campos somem do
+formulário quando o cartão escolhido é desse tipo, e `syncInstallments` ignora
+o cartão mesmo que algo chegue lá por outro caminho. O item da lista também não
+vira link — não há fatura para abrir.
+
 ## Duas datas no cartão
 
 Uma compra no cartão tem duas datas que não são a mesma, e o app guarda as duas:
@@ -183,6 +221,23 @@ Guardar isso no lançamento, e não só na parcela, é o que faz a escolha
 sobreviver a uma edição: `syncInstallments` apaga e reconstrói as parcelas a
 cada gravação, então um ajuste que só existisse na parcela seria perdido na
 próxima vez que o lançamento fosse editado.
+
+## Abertura
+
+Antes, abrir o app instalado dava uma sequência de telas pretas: o bundle
+carregando, depois `AppSignInGate` resolvendo a sessão, depois `AccessGate`
+consultando a liberação — as duas últimas desenhavam um retângulo vazio.
+
+Agora existe uma splash só, em dois lugares:
+
+- **no HTML** (`layout.tsx`), servida com a página e portanto pintada antes de
+  qualquer script — é ela que cobre o download do bundle. Sai por CSS quando
+  `AppSplashDismiss` liga `data-app-ready` no `<html>`, com fade;
+- **nas portas**, o mesmo componente `AppSplash`, cobrindo sessão e permissão.
+
+Sendo a mesma imagem, a troca entre uma e outra não aparece. O `background_color`
+do manifest é o mesmo `--color-base`, então a splash que o Android gera também
+emenda sem pulo de cor.
 
 ## Offline
 

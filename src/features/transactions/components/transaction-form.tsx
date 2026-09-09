@@ -101,6 +101,10 @@ export function TransactionForm({
 
   const cartao = cards.find((card) => card.id === currentCardId) ?? null
 
+  /* Alimentação sai do saldo na hora: não há fatura para escolher nem parcela
+     para agendar. */
+  const temFatura = cartao !== null && cartao.kind === 'credit'
+
   const methods = currentKind === 'income' ? INCOME_METHODS : EXPENSE_METHODS
 
   const categoryOptions = categories
@@ -119,8 +123,8 @@ export function TransactionForm({
       ...values,
       description: values.description.trim(),
       cardId: values.method === 'card' ? values.cardId : null,
-      installments: values.method === 'card' ? values.installments : 1,
-      paymentDate: values.method === 'card' ? values.paymentDate : null,
+      installments: temFatura ? values.installments : 1,
+      paymentDate: temFatura ? values.paymentDate : null,
       recurrenceId: transaction?.recurrenceId ?? null,
     }
 
@@ -287,32 +291,36 @@ export function TransactionForm({
             )}
           />
 
-          <Controller
-            control={control}
-            name="installments"
-            render={({ field }) => (
-              <SelectField
-                label="Parcelas"
-                value={String(field.value)}
-                onChange={(event) => field.onChange(Number(event.target.value))}
-                error={errors.installments?.message}
-                hint={
-                  parcela
-                    ? `${currentInstallments}× de ${formatMoney(parcela)}`
-                    : undefined
-                }
-                options={Array.from(
-                  { length: MAX_INSTALLMENTS },
-                  (unused, index) => ({
-                    value: String(index + 1),
-                    label: index === 0 ? 'À vista' : `${index + 1}×`,
-                  }),
-                )}
-              />
-            )}
-          />
+          {temFatura && (
+            <Controller
+              control={control}
+              name="installments"
+              render={({ field }) => (
+                <SelectField
+                  label="Parcelas"
+                  value={String(field.value)}
+                  onChange={(event) =>
+                    field.onChange(Number(event.target.value))
+                  }
+                  error={errors.installments?.message}
+                  hint={
+                    parcela
+                      ? `${currentInstallments}× de ${formatMoney(parcela)}`
+                      : undefined
+                  }
+                  options={Array.from(
+                    { length: MAX_INSTALLMENTS },
+                    (unused, index) => ({
+                      value: String(index + 1),
+                      label: index === 0 ? 'À vista' : `${index + 1}×`,
+                    }),
+                  )}
+                />
+              )}
+            />
+          )}
 
-          {cartao && (
+          {temFatura && cartao && (
             <Controller
               control={control}
               name="paymentDate"

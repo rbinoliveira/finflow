@@ -7,9 +7,11 @@ import {
   Sora,
 } from 'next/font/google'
 
+import { AppSplash } from '@/features/platform/components/app-splash'
 import {
   APP_DESCRIPTION,
   APP_NAME,
+  APP_SPLASH_ID,
 } from '@/features/platform/constants/app-identity.constants'
 import { AppProviders } from '@/features/platform/providers/app-providers'
 
@@ -71,6 +73,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
       className={`${sora.variable} ${manrope.variable} ${jetBrainsMono.variable}`}
     >
       <body>
+        {/* Servida no HTML: aparece na primeira pintura, sem esperar o bundle.
+            O `AppSplashDismiss` a apaga quando o React assume. */}
+        <div id={APP_SPLASH_ID} aria-hidden="true">
+          <AppSplash />
+        </div>
+
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

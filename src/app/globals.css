@@ -72,6 +72,33 @@
   }
 }
 
+@layer base {
+  /* A splash servida no HTML cobre a tela até o React montar. Ela sai por CSS,
+     não por remoção do nó: apagar o elemento no mesmo quadro em que a árvore
+     aparece pisca, e a transição cobre a emenda. */
+  #app-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background-color: var(--color-base);
+  }
+
+  html[data-app-ready] #app-splash {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 200ms ease,
+      visibility 0s linear 200ms;
+  }
+
+  /* Quem pediu menos movimento não ganha nem o giro do indicador nem o fade. */
+  @media (prefers-reduced-motion: reduce) {
+    html[data-app-ready] #app-splash {
+      transition: none;
+    }
+  }
+}
+
 @utility numeric {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;

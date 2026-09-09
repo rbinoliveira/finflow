@@ -10,6 +10,8 @@ import {
 import { useFirebaseAuth } from '@/features/platform/providers/firebase-auth.provider'
 import { Button } from '@/shared/components/button'
 
+import { AppSplash } from './app-splash'
+
 type AppSignInGateProps = {
   children: ReactNode
 }
@@ -18,7 +20,7 @@ export function AppSignInGate({ children }: AppSignInGateProps) {
   const { status, signIn } = useFirebaseAuth()
 
   if (status === 'loading') {
-    return <div className="bg-base min-h-dvh" />
+    return <AppSplash />
   }
 
   if (status === 'sign-in') {

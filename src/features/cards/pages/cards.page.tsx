@@ -8,19 +8,22 @@ import { DataHandler } from '@/shared/components/data-handler'
 
 import { CardFormSheet } from '../components/card-form-sheet'
 import { CardItem } from '../components/card-item'
+import { CardRemoveDialog } from '../components/card-remove-dialog'
 import { MESSAGE_NO_CARDS } from '../constants/cards.constants'
 import type { CreditCard } from '../types/card.type'
 import { buildCardUsage } from '../utils/card-usage.util'
 
 export function CardsPage() {
-  const { cards, installments, loading, error, reload } = useLedger()
+  const { cards, installments, transactions, loading, error, reload } =
+    useLedger()
 
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<CreditCard | null>(null)
+  const [removing, setRemoving] = useState<CreditCard | null>(null)
 
   const usages = useMemo(
-    () => cards.map((card) => buildCardUsage(card, installments)),
-    [cards, installments],
+    () => cards.map((card) => buildCardUsage(card, installments, transactions)),
+    [cards, installments, transactions],
   )
 
   const openNew = () => {
@@ -63,7 +66,10 @@ export function CardsPage() {
         open={open}
         card={editing}
         onClose={() => setOpen(false)}
+        onRemove={setRemoving}
       />
+
+      <CardRemoveDialog card={removing} onClose={() => setRemoving(null)} />
     </div>
   )
 }

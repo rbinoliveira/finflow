@@ -7,3 +7,9 @@ export const APP_DESCRIPTION =
 
 export const SIGN_IN_LABEL = 'Entrar com Google'
 export const SIGN_OUT_LABEL = 'Sair'
+
+/** Ligado no `<html>` quando o React monta; a CSS usa isso para apagar a
+ *  splash servida no HTML. */
+export const APP_READY_ATTRIBUTE = 'data-app-ready'
+
+export const APP_SPLASH_ID = 'app-splash'

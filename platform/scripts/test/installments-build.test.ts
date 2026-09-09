@@ -8,11 +8,14 @@ import type { Transaction } from '../../../src/features/transactions/types/trans
 const card: CreditCard = {
   id: 'nubank',
   name: 'Nubank',
+  kind: 'credit',
   brand: 'mastercard',
   color: '#C77DFF',
   limitCents: 500_000,
   closingDay: 25,
   dueDay: 5,
+  balanceCents: 0,
+  balanceSince: '',
   createdAt: 1,
   updatedAt: 1,
 }
