@@ -195,21 +195,106 @@ test('próxima cobrança respeita o começo no futuro e o fim', () => {
   )
 })
 
-test('o total do mês separa o pago do que falta', () => {
+test('o total do mês separa o que falta do que já foi', () => {
   const bills = billsOfMonth(
     [
       recorrencia(),
-      recorrencia({ id: 'aluguel', description: 'Aluguel', amountCents: 200_000 }),
+      recorrencia({
+        id: 'aluguel',
+        description: 'Aluguel',
+        amountCents: 200_000,
+      }),
     ],
     [pagamento('internet', '2026-03-10')],
     '2026-03',
   )
 
   assert.deepEqual(billTotals(bills), {
-    paidCents: 9_990,
-    openCents: 200_000,
-    totalCents: 209_990,
+    incomeCents: 0,
+    expenseCents: 209_990,
+    openIncomeCents: 0,
+    openExpenseCents: 200_000,
   })
+})
+
+test('salário recorrente projeta como receita a receber', () => {
+  const salario = recorrencia({
+    id: 'salario',
+    kind: 'income',
+    description: 'Salário',
+    amountCents: 500_000,
+    dayOfMonth: 5,
+  })
+
+  const bills = billsOfMonth([salario, recorrencia()], [], '2026-03')
+
+  assert.deepEqual(
+    bills.map((bill) => bill.recurrence.id),
+    ['salario', 'internet'],
+  )
+  assert.deepEqual(billTotals(bills), {
+    incomeCents: 500_000,
+    expenseCents: 9_990,
+    openIncomeCents: 500_000,
+    openExpenseCents: 9_990,
+  })
+})
+
+test('receita e despesa não se somam no mesmo número', () => {
+  const salario = recorrencia({
+    id: 'salario',
+    kind: 'income',
+    amountCents: 500_000,
+  })
+
+  const bills = billsOfMonth([salario, recorrencia()], [], '2026-03')
+  const totais = billTotals(bills)
+
+  assert.equal(totais.incomeCents - totais.expenseCents, 490_010)
+})
+
+test('receita recebida sai do a receber e fica no previsto', () => {
+  const salario = recorrencia({
+    id: 'salario',
+    kind: 'income',
+    amountCents: 500_000,
+  })
+
+  const recebido = {
+    ...pagamento('salario', '2026-03-10', 512_000),
+    kind: 'income' as const,
+  }
+
+  const bills = billsOfMonth([salario], [recebido], '2026-03')
+
+  assert.equal(bills[0].paid, true)
+  assert.deepEqual(billTotals(bills), {
+    incomeCents: 512_000,
+    expenseCents: 0,
+    openIncomeCents: 0,
+    openExpenseCents: 0,
+  })
+})
+
+test('o aberto do início traz receita e despesa juntas, por vencimento', () => {
+  const salario = recorrencia({
+    id: 'salario',
+    kind: 'income',
+    amountCents: 500_000,
+    dayOfMonth: 5,
+  })
+
+  const abertas = openBills([salario, recorrencia()], [], '2026-02-20')
+
+  assert.deepEqual(
+    abertas.map((bill) => `${bill.recurrence.id}:${bill.dueDate}`),
+    [
+      'salario:2026-01-05',
+      'internet:2026-01-10',
+      'salario:2026-02-05',
+      'internet:2026-02-10',
+    ],
+  )
 })
 
 test('as contas do mês saem ordenadas por vencimento', () => {

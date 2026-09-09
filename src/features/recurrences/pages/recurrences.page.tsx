@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import { useLedger } from '@/features/ledger/providers/ledger.provider'
+import { useTransactionComposer } from '@/features/transactions/providers/transaction-composer.provider'
 import { Button } from '@/shared/components/button'
 import { Card } from '@/shared/components/card'
 import { DataHandler } from '@/shared/components/data-handler'
@@ -12,8 +13,6 @@ import { currentMonth } from '@/shared/utils/date.util'
 
 import { RecurrenceBillSheet } from '../components/recurrence-bill-sheet'
 import { RecurrenceBillsList } from '../components/recurrence-bills-list'
-import { RecurrenceFormSheet } from '../components/recurrence-form-sheet'
-import { RecurrenceRemoveDialog } from '../components/recurrence-remove-dialog'
 import { RecurrenceRow } from '../components/recurrence-row'
 import { RecurrencesSummary } from '../components/recurrences-summary'
 import {
@@ -23,7 +22,7 @@ import {
   RECURRENCE_TAB_RULES,
   RECURRENCES_TITLE,
 } from '../constants/recurrences.constants'
-import type { Recurrence, RecurrenceBill } from '../types/recurrence.type'
+import type { RecurrenceBill } from '../types/recurrence.type'
 import { billsOfMonth, billTotals } from '../utils/recurrence-schedule.util'
 
 type RecurrenceTab = 'bills' | 'rules'
@@ -39,12 +38,11 @@ export function RecurrencesPage() {
     reload,
   } = useLedger()
 
+  const { openComposer, editRecurrence } = useTransactionComposer()
+
   const [tab, setTab] = useState<RecurrenceTab>('bills')
   const [month, setMonth] = useState(currentMonth())
   const [bill, setBill] = useState<RecurrenceBill | null>(null)
-  const [open, setOpen] = useState(false)
-  const [editing, setEditing] = useState<Recurrence | null>(null)
-  const [removing, setRemoving] = useState<Recurrence | null>(null)
 
   const bills = useMemo(
     () => billsOfMonth(recurrences, transactions, month),
@@ -53,10 +51,7 @@ export function RecurrencesPage() {
 
   const totals = useMemo(() => billTotals(bills), [bills])
 
-  const openNew = () => {
-    setEditing(null)
-    setOpen(true)
-  }
+  const openNew = () => openComposer('expense', 'recurring')
 
   return (
     <div className="flex flex-col gap-4">
@@ -121,10 +116,7 @@ export function RecurrencesPage() {
                   cards.find((card) => card.id === recurrence.cardId)?.name ??
                   null
                 }
-                onSelect={(selected) => {
-                  setEditing(selected)
-                  setOpen(true)
-                }}
+                onSelect={editRecurrence}
               />
             ))}
           </Card>
@@ -132,21 +124,6 @@ export function RecurrencesPage() {
       )}
 
       <RecurrenceBillSheet bill={bill} onClose={() => setBill(null)} />
-
-      <RecurrenceFormSheet
-        open={open}
-        recurrence={editing}
-        onClose={() => setOpen(false)}
-        onRemove={(selected) => {
-          setOpen(false)
-          setRemoving(selected)
-        }}
-      />
-
-      <RecurrenceRemoveDialog
-        recurrence={removing}
-        onClose={() => setRemoving(null)}
-      />
     </div>
   )
 }

@@ -1,4 +1,7 @@
-import type { Transaction } from '@/features/transactions/types/transaction.type'
+import type {
+  Transaction,
+  TransactionKind,
+} from '@/features/transactions/types/transaction.type'
 import {
   dayInMonthIso,
   daysBetween,
@@ -183,11 +186,16 @@ export function billTotals(bills: RecurrenceBill[]): RecurrenceTotals {
   const somar = (selecionadas: RecurrenceBill[]) =>
     selecionadas.reduce((total, bill) => total + bill.amountCents, 0)
 
-  const pagas = bills.filter((bill) => bill.paid)
+  const doTipo = (kind: TransactionKind) =>
+    bills.filter((bill) => bill.recurrence.kind === kind)
+
+  const receitas = doTipo('income')
+  const despesas = doTipo('expense')
 
   return {
-    paidCents: somar(pagas),
-    openCents: somar(bills.filter((bill) => !bill.paid)),
-    totalCents: somar(bills),
+    incomeCents: somar(receitas),
+    expenseCents: somar(despesas),
+    openIncomeCents: somar(receitas.filter((bill) => !bill.paid)),
+    openExpenseCents: somar(despesas.filter((bill) => !bill.paid)),
   }
 }

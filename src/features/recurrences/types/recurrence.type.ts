@@ -50,8 +50,11 @@ export type RecurrenceBill = {
   transactionId: string | null
 }
 
+/** Receita e despesa nunca se somam no mesmo número: salário e internet caem
+ *  no mesmo mês, mas um entra e o outro sai. */
 export type RecurrenceTotals = {
-  paidCents: number
-  openCents: number
-  totalCents: number
+  incomeCents: number
+  expenseCents: number
+  openIncomeCents: number
+  openExpenseCents: number
 }

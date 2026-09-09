@@ -8,6 +8,7 @@ import { Button } from '@/shared/components/button'
 import { MoneyField } from '@/shared/components/money-field'
 import { monthLabel, shortDateLabel } from '@/shared/utils/date.util'
 
+import { BILL_COPY } from '../constants/recurrences.constants'
 import type { RecurrenceBill } from '../types/recurrence.type'
 import {
   payRecurrenceBillUseCase,
@@ -27,6 +28,8 @@ export function RecurrenceBillSheet({
 
   const [amountCents, setAmountCents] = useState(0)
   const [saving, setSaving] = useState(false)
+
+  const copy = BILL_COPY[bill?.recurrence.kind ?? 'expense']
 
   useEffect(() => {
     if (bill) setAmountCents(bill.amountCents)
@@ -69,7 +72,7 @@ export function RecurrenceBillSheet({
       title={bill?.recurrence.description ?? ''}
       description={
         bill
-          ? `${monthLabel(bill.month)} · vence ${shortDateLabel(bill.dueDate)}`
+          ? `${monthLabel(bill.month)} · ${copy.due} ${shortDateLabel(bill.dueDate)}`
           : undefined
       }
       onClose={onClose}
@@ -77,25 +80,22 @@ export function RecurrenceBillSheet({
       <div className="flex flex-col gap-4 pb-5">
         {bill?.paid ? (
           <>
-            <p className="text-ink-muted text-sm">
-              Esta conta já está paga e virou lançamento no mês dela. Desfazer
-              apaga esse lançamento e a conta volta para o aberto.
-            </p>
+            <p className="text-ink-muted text-sm">{copy.undoHint}</p>
             <Button variant="danger" onClick={desfazer} disabled={saving}>
-              Desfazer pagamento
+              {copy.undo}
             </Button>
           </>
         ) : (
           <>
             <MoneyField
               large
-              label="Valor pago"
+              label={copy.amountLabel}
               value={amountCents}
               onChange={setAmountCents}
-              hint="Ajuste se a conta veio diferente do previsto."
+              hint={copy.amountHint}
             />
             <Button onClick={pagar} disabled={saving || amountCents <= 0}>
-              Marcar como paga
+              {copy.confirm}
             </Button>
           </>
         )}

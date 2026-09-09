@@ -6,6 +6,7 @@ import { cn } from '@/shared/utils/cn.util'
 import { shortDateLabel, shortMonthLabel } from '@/shared/utils/date.util'
 import { formatMoney } from '@/shared/utils/money.util'
 
+import { BILL_COPY } from '../constants/recurrences.constants'
 import type { RecurrenceBill } from '../types/recurrence.type'
 import { billDueSoon, billOverdue } from '../utils/recurrence-schedule.util'
 
@@ -24,6 +25,8 @@ export function RecurrenceBillRow({
 }: RecurrenceBillRowProps) {
   const atrasada = billOverdue(bill)
   const perto = !atrasada && billDueSoon(bill)
+  const receita = bill.recurrence.kind === 'income'
+  const copy = BILL_COPY[bill.recurrence.kind]
 
   return (
     <button
@@ -43,7 +46,7 @@ export function RecurrenceBillRow({
           bill.paid && 'bg-income/12',
         )}
       >
-        {bill.paid ? '✓' : (category?.emoji ?? '🔁')}
+        {bill.paid ? '✓' : (category?.emoji ?? (receita ? '💰' : '🔁'))}
       </span>
 
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -56,7 +59,7 @@ export function RecurrenceBillRow({
           {bill.recurrence.description}
         </span>
         <span className="text-ink-faint truncate text-[11px]">
-          {bill.paid ? 'paga' : 'vence'} {shortDateLabel(bill.dueDate)}
+          {bill.paid ? copy.settled : copy.due} {shortDateLabel(bill.dueDate)}
           {showMonth
             ? ` · ${shortMonthLabel(bill.month)}/${bill.month.slice(2, 4)}`
             : ''}
@@ -69,9 +72,12 @@ export function RecurrenceBillRow({
       <span
         className={cn(
           'numeric shrink-0 text-sm font-semibold',
-          bill.paid ? 'text-ink-faint line-through' : 'text-ink',
+          bill.paid && 'text-ink-faint line-through',
+          !bill.paid && receita && 'text-income',
+          !bill.paid && !receita && 'text-ink',
         )}
       >
+        {receita ? '+' : ''}
         {formatMoney(bill.amountCents)}
       </span>
     </button>

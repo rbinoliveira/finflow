@@ -1,3 +1,5 @@
+import type { TransactionKind } from '@/features/transactions/types/transaction.type'
+
 import type { RecurrenceStatus } from '../types/recurrence.type'
 
 export const RECURRENCE_STATUS_LABEL: Record<RecurrenceStatus, string> = {
@@ -39,9 +41,49 @@ export const RECURRENCE_PAUSE_HINT =
 export const MESSAGE_NO_RECURRENCES =
   'Nenhuma recorrência cadastrada. Crie uma para a conta que chega todo mês no mesmo dia.'
 
+/** Uma conta que entra não "vence" nem é "paga". A projeção é a mesma para
+ *  receita e despesa; o que muda é como se fala dela. */
+export const BILL_COPY: Record<
+  TransactionKind,
+  {
+    due: string
+    settled: string
+    amountLabel: string
+    amountHint: string
+    confirm: string
+    undo: string
+    undoHint: string
+    openTitle: string
+    openCount: string
+  }
+> = {
+  expense: {
+    due: 'vence',
+    settled: 'paga',
+    amountLabel: 'Valor pago',
+    amountHint: 'Ajuste se a conta veio diferente do previsto.',
+    confirm: 'Marcar como paga',
+    undo: 'Desfazer pagamento',
+    undoHint:
+      'Esta conta já está paga e virou lançamento no mês dela. Desfazer apaga esse lançamento e a conta volta para o aberto.',
+    openTitle: 'Contas a pagar',
+    openCount: 'a pagar',
+  },
+  income: {
+    due: 'cai em',
+    settled: 'recebida',
+    amountLabel: 'Valor recebido',
+    amountHint: 'Ajuste se veio diferente do previsto.',
+    confirm: 'Marcar como recebida',
+    undo: 'Desfazer recebimento',
+    undoHint:
+      'Esta receita já está recebida e virou lançamento no mês dela. Desfazer apaga esse lançamento e ela volta para o aberto.',
+    openTitle: 'A receber',
+    openCount: 'a receber',
+  },
+}
+
 export const MESSAGE_NO_BILLS_IN_MONTH =
   'Nenhuma conta recorrente cai neste mês.'
 
 export const MESSAGE_NO_OPEN_BILLS = 'Nenhuma conta recorrente em aberto.'
-
-export const OPEN_BILLS_TITLE = 'Contas em aberto'

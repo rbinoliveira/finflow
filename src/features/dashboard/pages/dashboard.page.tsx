@@ -100,6 +100,14 @@ export function DashboardPage() {
 
       <DashboardOpenBills
         bills={contasAbertas}
+        kind="expense"
+        categories={categories}
+        onSelect={setBill}
+      />
+
+      <DashboardOpenBills
+        bills={contasAbertas}
+        kind="income"
         categories={categories}
         onSelect={setBill}
       />

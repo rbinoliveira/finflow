@@ -118,6 +118,17 @@ Conta que se repete — internet, aluguel, assinatura — vira uma regra em
 `users/{uid}/recurrences`: valor, dia do mês, intervalo (mensal a anual), mês
 inicial e mês final opcional.
 
+O cadastro é o mesmo do lançamento comum: o `+` pergunta primeiro **despesa ou
+receita**, e o compositor abre com uma aba no topo entre **Único** (padrão) e
+**Recorrente** — cada uma desenha só os campos que precisa. Editar não mostra a
+aba: o que já foi salvo é de um tipo ou de outro, e converter seria apagar um
+para criar o outro.
+
+Receita recorrente é o mesmo mecanismo com outra fala: salário projeta em todo
+mês como **a receber** e você marca como recebida quando cai. Receita e despesa
+nunca entram no mesmo total — `billTotals` devolve as duas separadas, e o
+início lista *Contas a pagar* e *A receber* em seções próprias.
+
 **A ocorrência não é gerada, é derivada.** Nada é gravado por mês: a regra
 responde por todos eles de uma vez, passados e futuros, e a tela monta a lista
 na hora (`billsOfMonth`). Abrir maio de 2027 mostra a conta de maio de 2027 sem

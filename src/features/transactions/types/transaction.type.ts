@@ -1,5 +1,9 @@
 export type TransactionKind = 'expense' | 'income'
 
+/** O que o compositor está escrevendo: um lançamento só, ou a regra que o
+ *  repete todo mês. */
+export type ComposerMode = 'single' | 'recurring'
+
 export type PaymentMethod = 'pix' | 'card' | 'debit' | 'cash' | 'boleto'
 
 export type Transaction = {
