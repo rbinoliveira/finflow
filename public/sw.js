@@ -1,5 +1,5 @@
 /* eslint-disable */
-const VERSION = 'v2'
+const VERSION = 'v3'
 const CACHE_SHELL = `finflow-shell-${VERSION}`
 const CACHE_ASSETS = `finflow-assets-${VERSION}`
 
@@ -7,6 +7,7 @@ const APP_SHELL = [
   '/',
   '/transactions',
   '/cards',
+  '/recurrences',
   '/settings',
   '/settings/categories',
   '/manifest.webmanifest',
@@ -20,6 +21,8 @@ const CURRENT_CACHES = [CACHE_SHELL, CACHE_ASSETS]
 const OWNED_PREFIX = 'finflow-'
 
 const NETWORK_TIMEOUT_MS = 3500
+
+const NAVIGATION_FALLBACK = '/'
 
 const UNCACHED_HOSTS = [
   'firestore.googleapis.com',
@@ -85,12 +88,11 @@ function fetchWithTimeout(request) {
   })
 }
 
-/* `ignoreSearch: true` deixa a navegação dura reaproveitar a mesma entrada
-   independente de query string — mas a busca RSC do Next (`?_rsc=...`) devolve
-   um Flight stream, não o documento HTML. Se as duas dividem a mesma entrada,
-   uma troca de tela client-side recebe o HTML de volta e o roteador trava sem
-   erro capturável. Por isso a busca RSC casa só por igualdade exata. */
-async function serveNetworkFirst(request, cacheName, fallback, exact) {
+/* A busca RSC do Next (`?_rsc=...`) devolve um Flight stream, não HTML, e
+   precisa casar por igualdade exata: servir um documento no lugar dela trava o
+   roteador sem erro capturável. Por isso ela nunca divide entrada com a
+   navegação — que é guardada por caminho, em `shellKey`. */
+async function serveNetworkFirst(request, cacheName) {
   const cache = await caches.open(cacheName)
 
   try {
@@ -98,16 +100,54 @@ async function serveNetworkFirst(request, cacheName, fallback, exact) {
     if (response.ok) cache.put(request, response.clone())
     return response
   } catch (error) {
-    const stored = await cache.match(request, { ignoreSearch: !exact })
+    const stored = await cache.match(request)
     if (stored) return stored
-
-    if (fallback) {
-      const backup = await cache.match(fallback)
-      if (backup) return backup
-    }
 
     throw error
   }
+}
+
+/**
+ * A entrada da navegação é o caminho, sem query: `/transactions?month=…` e
+ * `/transactions` são o mesmo documento, e o precache já guarda assim. Isso
+ * também mantém a busca RSC num endereço próprio, sem o `ignoreSearch` que
+ * antes fazia as duas se encostarem.
+ */
+function shellKey(url) {
+  return new Request(new URL(url.pathname, self.location.origin).href)
+}
+
+/**
+ * O documento sai do cache na hora e a rede revalida por trás.
+ *
+ * Antes a navegação esperava a rede — até `NETWORK_TIMEOUT_MS` de tela vazia
+ * numa conexão ruim, justamente o trecho em que nada pode ser desenhado,
+ * porque a splash mora dentro do HTML que está sendo aguardado. O preço é ver
+ * a versão anterior numa abertura e a nova na seguinte.
+ */
+async function serveShell(event) {
+  const cache = await caches.open(CACHE_SHELL)
+  const key = shellKey(new URL(event.request.url))
+
+  const update = fetch(event.request)
+    .then((response) => {
+      if (response.ok) cache.put(key, response.clone())
+      return response
+    })
+    .catch(() => null)
+
+  event.waitUntil(update)
+
+  const stored = await cache.match(key)
+  if (stored) return stored
+
+  const fresh = await update
+  if (fresh) return fresh
+
+  const fallback = await cache.match(NAVIGATION_FALLBACK)
+  if (fallback) return fallback
+
+  throw new Error('sem rede e sem cópia local desta tela')
 }
 
 async function serveCacheFirst(request, cacheName) {
@@ -164,12 +204,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.mode === 'navigate') {
-    event.respondWith(serveNetworkFirst(request, CACHE_SHELL, '/'))
+    event.respondWith(serveShell(event))
     return
   }
 
   if (url.searchParams.has('_rsc')) {
-    event.respondWith(serveNetworkFirst(request, CACHE_SHELL, undefined, true))
+    event.respondWith(serveNetworkFirst(request, CACHE_SHELL))
     return
   }
 

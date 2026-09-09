@@ -241,6 +241,23 @@ emenda sem pulo de cor.
 
 ## Offline
 
+O service worker (`public/sw.js`) serve o documento **do cache primeiro** e
+revalida por trás. Antes ele esperava a rede, com teto de 3,5s — numa conexão
+ruim isso era tela vazia justamente no trecho em que nada pode ser desenhado,
+porque a splash mora dentro do HTML que estava sendo aguardado. O preço da
+troca é ver a versão anterior numa abertura e a nova na seguinte.
+
+A entrada da navegação é o **caminho**, sem query: `/transactions?month=…` e
+`/transactions` são o mesmo documento, e é assim que o precache já guardava.
+Isso mantém a busca RSC do Next (`?_rsc=…`) num endereço próprio — ela devolve
+um Flight stream, não HTML, e servir um documento no lugar dela trava o
+roteador sem erro capturável.
+
+`platform/scripts/test/service-worker.test.ts` carrega o `sw.js` de verdade num
+contexto isolado e trava esse comportamento: cache antes da rede, query string
+caindo no mesmo caminho, revalidação gravando a versão nova, RSC nunca pegando
+o documento, e a queda para `/` quando falta rede e cópia local.
+
 O IndexedDB `finflow-offline` guarda um espelho das coleções e uma fila de
 mutações (outbox). Toda escrita entra no espelho na hora e é enfileirada; a fila
 é descarregada em ordem quando há rede — ao abrir o app, ao voltar a conexão e
