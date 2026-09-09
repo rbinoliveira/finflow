@@ -51,6 +51,7 @@ function pagamento(
     cardId: null,
     date,
     installments: 1,
+    paymentDate: null,
     recurrenceId,
     createdAt: 1,
     updatedAt: 1,

@@ -35,6 +35,7 @@ export async function payRecurrenceBillUseCase(
       cardId: recurrence.cardId,
       date: bill.dueDate,
       installments: 1,
+      paymentDate: null,
       recurrenceId: recurrence.id,
     },
     context,

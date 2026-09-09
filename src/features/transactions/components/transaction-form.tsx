@@ -33,6 +33,7 @@ import {
   updateTransactionUseCase,
 } from '../use-cases/transaction-save.use-case'
 import { TransactionDateField } from './transaction-date-field'
+import { TransactionPaymentField } from './transaction-payment-field'
 
 const UNCATEGORIZED_VALUE = ''
 
@@ -56,6 +57,7 @@ function defaultValues(
       cardId: transaction.cardId,
       date: transaction.date,
       installments: transaction.installments,
+      paymentDate: transaction.paymentDate ?? null,
     }
   }
 
@@ -68,6 +70,7 @@ function defaultValues(
     cardId: null,
     date: todayIso(),
     installments: 1,
+    paymentDate: null,
   }
 }
 
@@ -93,6 +96,10 @@ export function TransactionForm({
   const currentMethod = watch('method')
   const currentAmount = watch('amountCents')
   const currentInstallments = watch('installments')
+  const currentCardId = watch('cardId')
+  const currentDate = watch('date')
+
+  const cartao = cards.find((card) => card.id === currentCardId) ?? null
 
   const methods = currentKind === 'income' ? INCOME_METHODS : EXPENSE_METHODS
 
@@ -113,6 +120,7 @@ export function TransactionForm({
       description: values.description.trim(),
       cardId: values.method === 'card' ? values.cardId : null,
       installments: values.method === 'card' ? values.installments : 1,
+      paymentDate: values.method === 'card' ? values.paymentDate : null,
       recurrenceId: transaction?.recurrenceId ?? null,
     }
 
@@ -135,27 +143,32 @@ export function TransactionForm({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4 pb-5">
-      <Controller
-        control={control}
-        name="kind"
-        render={({ field }) => (
-          <SegmentedControl
-            label="Tipo do lançamento"
-            value={field.value}
-            onChange={(value) => {
-              field.onChange(value)
-              setValue('categoryId', null)
-              setValue('method', 'pix')
-              setValue('cardId', null)
-              setValue('installments', 1)
-            }}
-            options={[
-              { value: 'expense', label: 'Despesa' },
-              { value: 'income', label: 'Receita' },
-            ]}
-          />
-        )}
-      />
+      {/* Criando, o tipo já foi escolhido no `+` e o título o repete — repetir
+          o controle aqui só ocuparia a tela. Editando não houve esse passo, e
+          sem ele não haveria como corrigir um lançamento do tipo errado. */}
+      {transaction && (
+        <Controller
+          control={control}
+          name="kind"
+          render={({ field }) => (
+            <SegmentedControl
+              label="Tipo do lançamento"
+              value={field.value}
+              onChange={(value) => {
+                field.onChange(value)
+                setValue('categoryId', null)
+                setValue('method', 'pix')
+                setValue('cardId', null)
+                setValue('installments', 1)
+              }}
+              options={[
+                { value: 'expense', label: 'Despesa' },
+                { value: 'income', label: 'Receita' },
+              ]}
+            />
+          )}
+        />
+      )}
 
       <Controller
         control={control}
@@ -241,6 +254,19 @@ export function TransactionForm({
         )}
       />
 
+      <Controller
+        control={control}
+        name="date"
+        render={({ field }) => (
+          <TransactionDateField
+            value={field.value}
+            onChange={field.onChange}
+            label={currentMethod === 'card' ? 'Data da compra' : 'Data'}
+            error={errors.date?.message}
+          />
+        )}
+      />
+
       {currentMethod === 'card' && (
         <>
           <Controller
@@ -285,20 +311,25 @@ export function TransactionForm({
               />
             )}
           />
+
+          {cartao && (
+            <Controller
+              control={control}
+              name="paymentDate"
+              render={({ field }) => (
+                <TransactionPaymentField
+                  value={field.value}
+                  onChange={field.onChange}
+                  card={cartao}
+                  purchaseDate={currentDate}
+                  installments={currentInstallments}
+                  error={errors.paymentDate?.message}
+                />
+              )}
+            />
+          )}
         </>
       )}
-
-      <Controller
-        control={control}
-        name="date"
-        render={({ field }) => (
-          <TransactionDateField
-            value={field.value}
-            onChange={field.onChange}
-            error={errors.date?.message}
-          />
-        )}
-      />
 
       <div className="flex gap-2 pt-1">
         <Button variant="outline" className="flex-1" onClick={onDone}>

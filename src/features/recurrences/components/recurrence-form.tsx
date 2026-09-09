@@ -144,26 +144,28 @@ export function RecurrenceForm({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4 pb-5">
-      <Controller
-        control={control}
-        name="kind"
-        render={({ field }) => (
-          <SegmentedControl
-            label="Tipo da recorrência"
-            value={field.value}
-            onChange={(value) => {
-              field.onChange(value)
-              setValue('categoryId', null)
-              setValue('method', 'pix')
-              setValue('cardId', null)
-            }}
-            options={[
-              { value: 'expense', label: 'Despesa' },
-              { value: 'income', label: 'Receita' },
-            ]}
-          />
-        )}
-      />
+      {recurrence && (
+        <Controller
+          control={control}
+          name="kind"
+          render={({ field }) => (
+            <SegmentedControl
+              label="Tipo da recorrência"
+              value={field.value}
+              onChange={(value) => {
+                field.onChange(value)
+                setValue('categoryId', null)
+                setValue('method', 'pix')
+                setValue('cardId', null)
+              }}
+              options={[
+                { value: 'expense', label: 'Despesa' },
+                { value: 'income', label: 'Receita' },
+              ]}
+            />
+          )}
+        />
+      )}
 
       <Controller
         control={control}

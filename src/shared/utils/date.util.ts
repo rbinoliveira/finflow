@@ -76,6 +76,12 @@ export function dayInMonthIso(month: string, day: number): string {
   return `${month}-${String(clamped).padStart(2, '0')}`
 }
 
+/** Em que coluna o dia 1 cai — 0 é domingo, como `Date.getDay()`. É o número
+ *  de células vazias que a grade do mês precisa antes de começar. */
+export function firstWeekdayOfMonth(month: string): number {
+  return fromIsoDate(`${month}-01`).getDay()
+}
+
 export function monthLabel(month: string): string {
   const [year, monthNumber] = month.split('-').map(Number)
   const label = MONTH_LABELS[monthNumber - 1] ?? ''

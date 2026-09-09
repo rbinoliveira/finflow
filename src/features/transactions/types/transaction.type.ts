@@ -16,6 +16,11 @@ export type Transaction = {
   cardId: string | null
   date: string
   installments: number
+  /** Quando sai o dinheiro. `date` é o dia da compra; esta é o dia em que ela
+   *  será paga — no cartão, o vencimento da fatura em que caiu. Parcelada, é a
+   *  primeira: as demais seguem mês a mês no mesmo dia. `null` deixa o cartão
+   *  decidir pela data da compra. */
+  paymentDate: string | null
   recurrenceId: string | null
   createdAt: number
   updatedAt: number
@@ -30,6 +35,7 @@ export type TransactionInput = {
   cardId: string | null
   date: string
   installments: number
+  paymentDate: string | null
   recurrenceId: string | null
 }
 

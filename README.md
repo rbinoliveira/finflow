@@ -120,9 +120,12 @@ inicial e mês final opcional.
 
 O cadastro é o mesmo do lançamento comum: o `+` pergunta primeiro **despesa ou
 receita**, e o compositor abre com uma aba no topo entre **Único** (padrão) e
-**Recorrente** — cada uma desenha só os campos que precisa. Editar não mostra a
-aba: o que já foi salvo é de um tipo ou de outro, e converter seria apagar um
-para criar o outro.
+**Recorrente** — cada uma desenha só os campos que precisa. Como o tipo já foi
+escolhido no `+`, ele não se repete como controle na tela: quem o mostra é o
+título (*Nova despesa*, *Receita recorrente*). Editar inverte as duas coisas —
+sem a aba, porque o que já foi salvo é de um tipo ou de outro e converter seria
+apagar um para criar o outro; e **com** o controle de despesa/receita, porque
+ali não houve o passo do `+` e sem ele não haveria como corrigir o tipo.
 
 Receita recorrente é o mesmo mecanismo com outra fala: salário projeta em todo
 mês como **a receber** e você marca como recebida quando cai. Receita e despesa
@@ -159,6 +162,27 @@ Nada disso precisa de servidor: não há geração agendada para atrasar, e por
 isso não há cron nem Cloud Function no projeto. O dia em que precisar de um
 será por notificação (*"sua internet vence amanhã"*), que é o que o cliente
 não consegue fazer — e não por causa das contas em si.
+
+## Duas datas no cartão
+
+Uma compra no cartão tem duas datas que não são a mesma, e o app guarda as duas:
+
+- **`date`** — o dia em que a compra aconteceu. É por ela que o gasto entra no
+  mês, na quebra por categoria e por origem.
+- **`paymentDate`** — o dia em que o dinheiro sai, ou seja, o vencimento da
+  fatura em que ela caiu. Parcelada, é o da primeira: as demais seguem no mesmo
+  dia dos meses seguintes.
+
+`paymentDate` é `null` por padrão, e aí quem decide é o fechamento do cartão
+sobre a data da compra (`resolveInvoiceMonth`). Preencher é a escolha de quem
+comprou na véspera do fechamento e prefere a fatura seguinte — o formulário
+oferece as três faturas alcançáveis com o vencimento de cada uma, e um
+calendário para qualquer outro dia.
+
+Guardar isso no lançamento, e não só na parcela, é o que faz a escolha
+sobreviver a uma edição: `syncInstallments` apaga e reconstrói as parcelas a
+cada gravação, então um ajuste que só existisse na parcela seria perdido na
+próxima vez que o lançamento fosse editado.
 
 ## Offline
 
