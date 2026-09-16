@@ -1,6 +1,7 @@
 import type { CreditCard } from '@/features/cards/types/card.type'
 import { UNCATEGORIZED_LABEL } from '@/features/categories/constants/categories.constants'
 import type { Category } from '@/features/categories/types/category.type'
+import type { RecurrenceBill } from '@/features/recurrences/types/recurrence.type'
 import {
   PAYMENT_METHOD_COLOR,
   PAYMENT_METHOD_EMOJI,
@@ -82,22 +83,39 @@ export function spendingByCategory(
     .sort((first, second) => second.totalCents - first.totalCents)
 }
 
-export function groupByDay(transactions: Transaction[]) {
-  const porDia = new Map<string, Transaction[]>()
+/**
+ * A conta recorrente ainda não paga entra no dia do vencimento, ao lado do que
+ * já foi lançado, mas fora do total do dia: o total é o que saiu de verdade.
+ */
+export function groupByDay(
+  transactions: Transaction[],
+  bills: RecurrenceBill[] = [],
+) {
+  const porDia = new Map<
+    string,
+    { transactions: Transaction[]; bills: RecurrenceBill[] }
+  >()
+
+  const doDia = (date: string) => {
+    const grupo = porDia.get(date) ?? { transactions: [], bills: [] }
+    porDia.set(date, grupo)
+    return grupo
+  }
 
   for (const transaction of transactions) {
-    porDia.set(transaction.date, [
-      ...(porDia.get(transaction.date) ?? []),
-      transaction,
-    ])
+    doDia(transaction.date).transactions.push(transaction)
+  }
+
+  for (const bill of bills) {
+    doDia(bill.dueDate).bills.push(bill)
   }
 
   return [...porDia.entries()]
     .sort(([first], [second]) => second.localeCompare(first))
-    .map(([date, entries]) => ({
+    .map(([date, grupo]) => ({
       date,
-      transactions: entries,
-      totalCents: entries.reduce(
+      ...grupo,
+      totalCents: grupo.transactions.reduce(
         (total, transaction) =>
           total +
           (transaction.kind === 'income'

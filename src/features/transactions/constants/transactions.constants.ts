@@ -70,5 +70,7 @@ export const COMPOSER_MODE_HINT: Record<ComposerMode, string> = {
   recurring: 'Uma conta que se repete todo mês no dia escolhido.',
 }
 
+export const RECURRING_TAG_LABEL = 'Recorrente'
+
 export const MESSAGE_NO_TRANSACTIONS =
   'Nenhum lançamento neste mês. Toque no + para registrar o primeiro.'

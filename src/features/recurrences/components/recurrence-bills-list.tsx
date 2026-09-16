@@ -10,6 +10,7 @@ type RecurrenceBillsListProps = {
   bills: RecurrenceBill[]
   categories: Category[]
   showMonth?: boolean
+  showRecurring?: boolean
   onSelect: (bill: RecurrenceBill) => void
 }
 
@@ -17,6 +18,7 @@ export function RecurrenceBillsList({
   bills,
   categories,
   showMonth,
+  showRecurring,
   onSelect,
 }: RecurrenceBillsListProps) {
   return (
@@ -31,6 +33,7 @@ export function RecurrenceBillsList({
             ) ?? null
           }
           showMonth={showMonth}
+          showRecurring={showRecurring}
           onSelect={onSelect}
         />
       ))}

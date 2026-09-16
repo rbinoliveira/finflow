@@ -16,10 +16,7 @@ import { useFirebaseAuth } from '@/features/platform/providers/firebase-auth.pro
 import { RecurrenceBillSheet } from '@/features/recurrences/components/recurrence-bill-sheet'
 import type { RecurrenceBill } from '@/features/recurrences/types/recurrence.type'
 import { openBills } from '@/features/recurrences/utils/recurrence-schedule.util'
-import { TransactionActionsSheet } from '@/features/transactions/components/transaction-actions-sheet'
 import { TransactionRow } from '@/features/transactions/components/transaction-row'
-import { useTransactionComposer } from '@/features/transactions/providers/transaction-composer.provider'
-import type { Transaction } from '@/features/transactions/types/transaction.type'
 import { Card } from '@/shared/components/card'
 import { DataHandler } from '@/shared/components/data-handler'
 import { MonthSwitcher } from '@/shared/components/month-switcher'
@@ -52,10 +49,8 @@ export function DashboardPage() {
     reload,
   } = useLedger()
   const { user } = useFirebaseAuth()
-  const { editTransaction } = useTransactionComposer()
 
   const [month, setMonth] = useState(currentMonth())
-  const [selected, setSelected] = useState<Transaction | null>(null)
   const [bill, setBill] = useState<RecurrenceBill | null>(null)
 
   const doMes = useMemo(
@@ -162,7 +157,6 @@ export function DashboardPage() {
                   cards.find((card) => card.id === transaction.cardId)?.name ??
                   null
                 }
-                onSelect={setSelected}
               />
             ))}
           </Card>
@@ -170,12 +164,6 @@ export function DashboardPage() {
       </section>
 
       <RecurrenceBillSheet bill={bill} onClose={() => setBill(null)} />
-
-      <TransactionActionsSheet
-        transaction={selected}
-        onClose={() => setSelected(null)}
-        onEdit={editTransaction}
-      />
     </div>
   )
 }

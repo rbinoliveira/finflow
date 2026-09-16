@@ -14,6 +14,7 @@ import type {
   SyncCollection,
   SyncedDocument,
 } from '@/features/offline/types/offline.type'
+import { listOutboxUseCase } from '@/features/offline/use-cases/outbox.use-case'
 import { offlineKey } from '@/features/offline/utils/offline-key.util'
 
 export async function readMirrorUseCase<T extends SyncedDocument>(
@@ -110,14 +111,23 @@ export async function replaceMirrorUseCase<T extends SyncedDocument>(
     (record) => !record.pending && !incoming.has(record.id),
   )
 
+  /* Nem sobrescrito: a leitura pode chegar antes do envio da edição, e a
+     versão antiga do servidor apagaria o que acabou de ser salvo. Vale a fila,
+     não a flag — uma mutação descartada não pode prender o registro. */
+  const naFila = new Set(
+    (await listOutboxUseCase())
+      .filter((mutation) => mutation.collection === collection)
+      .map((mutation) => mutation.documentId),
+  )
+
   await Promise.all([
     ...obsoletos.map((record) =>
       deleteRecord(OFFLINE_STORE.records, record.localId).catch(
         () => undefined,
       ),
     ),
-    ...documents.map((document) =>
-      writeMirrorUseCase(collection, document, false),
-    ),
+    ...documents
+      .filter((document) => !naFila.has(document.id))
+      .map((document) => writeMirrorUseCase(collection, document, false)),
   ])
 }

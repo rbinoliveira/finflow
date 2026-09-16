@@ -39,6 +39,7 @@ export function DashboardOpenBills({
         bills={doTipo}
         categories={categories}
         showMonth
+        showRecurring
         onSelect={onSelect}
       />
     </section>

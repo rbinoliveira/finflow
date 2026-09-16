@@ -55,6 +55,7 @@ export const BILL_COPY: Record<
     undoHint: string
     openTitle: string
     openCount: string
+    pendingTag: string
   }
 > = {
   expense: {
@@ -68,6 +69,7 @@ export const BILL_COPY: Record<
       'Esta conta já está paga e virou lançamento no mês dela. Desfazer apaga esse lançamento e a conta volta para o aberto.',
     openTitle: 'Contas a pagar',
     openCount: 'a pagar',
+    pendingTag: 'A pagar',
   },
   income: {
     due: 'cai em',
@@ -80,6 +82,7 @@ export const BILL_COPY: Record<
       'Esta receita já está recebida e virou lançamento no mês dela. Desfazer apaga esse lançamento e ela volta para o aberto.',
     openTitle: 'A receber',
     openCount: 'a receber',
+    pendingTag: 'A receber',
   },
 }
 

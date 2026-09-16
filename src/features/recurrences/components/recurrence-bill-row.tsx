@@ -1,6 +1,7 @@
 'use client'
 
 import type { Category } from '@/features/categories/types/category.type'
+import { RECURRING_TAG_LABEL } from '@/features/transactions/constants/transactions.constants'
 import { Tag } from '@/shared/components/tag'
 import { cn } from '@/shared/utils/cn.util'
 import { shortDateLabel, shortMonthLabel } from '@/shared/utils/date.util'
@@ -14,6 +15,10 @@ type RecurrenceBillRowProps = {
   bill: RecurrenceBill
   category: Category | null
   showMonth?: boolean
+  /** Fora da tela de recorrências, a conta precisa dizer de onde veio e,
+   *  entre lançamentos já feitos, que ainda está em aberto. */
+  showRecurring?: boolean
+  showPending?: boolean
   onSelect: (bill: RecurrenceBill) => void
 }
 
@@ -21,6 +26,8 @@ export function RecurrenceBillRow({
   bill,
   category,
   showMonth = false,
+  showRecurring = false,
+  showPending = false,
   onSelect,
 }: RecurrenceBillRowProps) {
   const atrasada = billOverdue(bill)
@@ -66,8 +73,12 @@ export function RecurrenceBillRow({
         </span>
       </span>
 
+      {showRecurring && <Tag tone="info">{RECURRING_TAG_LABEL}</Tag>}
       {atrasada && <Tag tone="danger">Atrasada</Tag>}
       {perto && <Tag tone="warn">Perto</Tag>}
+      {showPending && !bill.paid && !atrasada && !perto && (
+        <Tag>{copy.pendingTag}</Tag>
+      )}
 
       <span
         className={cn(

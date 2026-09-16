@@ -2,10 +2,14 @@
 
 import { UNCATEGORIZED_LABEL } from '@/features/categories/constants/categories.constants'
 import type { Category } from '@/features/categories/types/category.type'
+import { Tag } from '@/shared/components/tag'
 import { cn } from '@/shared/utils/cn.util'
 import { formatMoney } from '@/shared/utils/money.util'
 
-import { PAYMENT_METHOD_LABEL } from '../constants/transactions.constants'
+import {
+  PAYMENT_METHOD_LABEL,
+  RECURRING_TAG_LABEL,
+} from '../constants/transactions.constants'
 import type { Transaction } from '../types/transaction.type'
 
 type TransactionRowProps = {
@@ -27,16 +31,23 @@ export function TransactionRow({
     PAYMENT_METHOD_LABEL[transaction.method],
     cardName,
     transaction.installments > 1 ? `${transaction.installments}×` : null,
-    transaction.recurrenceId ? 'recorrente' : null,
   ]
     .filter(Boolean)
     .join(' · ')
 
+  /* Sem `onSelect` a linha só mostra — no Início não se edita nem apaga. */
+  const Root = onSelect ? 'button' : 'div'
+
   return (
-    <button
-      type="button"
-      onClick={() => onSelect?.(transaction)}
-      className="flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left transition-colors hover:bg-white/3"
+    <Root
+      {...(onSelect && {
+        type: 'button' as const,
+        onClick: () => onSelect(transaction),
+      })}
+      className={cn(
+        'flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left',
+        onSelect && 'transition-colors hover:bg-white/3',
+      )}
     >
       <span
         aria-hidden
@@ -55,6 +66,8 @@ export function TransactionRow({
         </span>
       </span>
 
+      {transaction.recurrenceId && <Tag tone="info">{RECURRING_TAG_LABEL}</Tag>}
+
       <span
         className={cn(
           'numeric shrink-0 text-sm font-semibold',
@@ -64,6 +77,6 @@ export function TransactionRow({
         {income ? '+' : '−'}
         {formatMoney(transaction.amountCents)}
       </span>
-    </button>
+    </Root>
   )
 }

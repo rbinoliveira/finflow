@@ -24,6 +24,7 @@ export const CATEGORY_EMOJIS = [
   '⛽',
   '💊',
   '🎬',
+  '⚽',
   '✈️',
   '📚',
   '👕',

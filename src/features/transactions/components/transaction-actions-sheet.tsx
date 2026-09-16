@@ -5,6 +5,7 @@ import { BottomSheet } from '@/shared/components/bottom-sheet'
 import { Button } from '@/shared/components/button'
 import { formatMoney } from '@/shared/utils/money.util'
 
+import { useTransactionComposer } from '../providers/transaction-composer.provider'
 import type { Transaction } from '../types/transaction.type'
 import { removeTransactionUseCase } from '../use-cases/transaction-remove.use-case'
 
@@ -19,7 +20,13 @@ export function TransactionActionsSheet({
   onClose,
   onEdit,
 }: TransactionActionsSheetProps) {
-  const { uid, installments, reload } = useLedger()
+  const { uid, installments, recurrences, reload } = useLedger()
+  const { editRecurrence } = useTransactionComposer()
+
+  const recurrence = transaction?.recurrenceId
+    ? (recurrences.find((entry) => entry.id === transaction.recurrenceId) ??
+      null)
+    : null
 
   const remove = async () => {
     if (!uid || !transaction) return
@@ -48,6 +55,19 @@ export function TransactionActionsSheet({
         >
           Editar lançamento
         </Button>
+        {/* O lançamento é o pagamento de um mês; valor, dia e repetição dos
+            próximos moram na regra. Uma regra já excluída não tem o que abrir. */}
+        {recurrence && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              editRecurrence(recurrence)
+              onClose()
+            }}
+          >
+            Editar recorrência
+          </Button>
+        )}
         <Button variant="danger" onClick={remove}>
           Excluir lançamento
         </Button>

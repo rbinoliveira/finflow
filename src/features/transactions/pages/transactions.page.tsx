@@ -8,6 +8,9 @@ import {
   summarizeMonth,
   transactionsOfMonth,
 } from '@/features/ledger/utils/ledger-summary.util'
+import { RecurrenceBillSheet } from '@/features/recurrences/components/recurrence-bill-sheet'
+import type { RecurrenceBill } from '@/features/recurrences/types/recurrence.type'
+import { billsOfMonth } from '@/features/recurrences/utils/recurrence-schedule.util'
 import { DataHandler } from '@/shared/components/data-handler'
 import { MonthSwitcher } from '@/shared/components/month-switcher'
 import { StatNumber } from '@/shared/components/stat-number'
@@ -25,14 +28,22 @@ import { useTransactionComposer } from '../providers/transaction-composer.provid
 import type { Transaction } from '../types/transaction.type'
 
 export function TransactionsPage() {
-  const { transactions, categories, cards, loading, error, reload } =
-    useLedger()
+  const {
+    transactions,
+    categories,
+    cards,
+    recurrences,
+    loading,
+    error,
+    reload,
+  } = useLedger()
   const { editTransaction } = useTransactionComposer()
 
   const [month, setMonth] = useState(currentMonth())
   const [kind, setKind] = useState<TransactionFilter>('all')
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [selected, setSelected] = useState<Transaction | null>(null)
+  const [bill, setBill] = useState<RecurrenceBill | null>(null)
 
   const doMes = useMemo(
     () => transactionsOfMonth(transactions, month),
@@ -50,8 +61,25 @@ export function TransactionsPage() {
     [doMes, kind, categoryId],
   )
 
+  /* A conta paga já está na lista como lançamento; a que falta pagar entra
+     no dia do vencimento, sob os mesmos filtros — e fora dos totais. */
+  const emAberto = useMemo(
+    () =>
+      billsOfMonth(recurrences, transactions, month)
+        .filter((entry) => !entry.paid)
+        .filter((entry) => kind === 'all' || entry.recurrence.kind === kind)
+        .filter(
+          (entry) =>
+            categoryId === null || entry.recurrence.categoryId === categoryId,
+        ),
+    [recurrences, transactions, month, kind, categoryId],
+  )
+
   const summary = useMemo(() => summarizeMonth(filtradas), [filtradas])
-  const grupos = useMemo(() => groupByDay(filtradas), [filtradas])
+  const grupos = useMemo(
+    () => groupByDay(filtradas, emAberto),
+    [filtradas, emAberto],
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,13 +131,21 @@ export function TransactionsPage() {
               date={grupo.date}
               totalCents={grupo.totalCents}
               transactions={grupo.transactions}
+              bills={grupo.bills}
               categories={categories}
               cards={cards}
               onSelect={setSelected}
+              onSelectBill={setBill}
             />
           ))}
         </div>
       </DataHandler>
+
+      <RecurrenceBillSheet
+        bill={bill}
+        manageable
+        onClose={() => setBill(null)}
+      />
 
       <TransactionActionsSheet
         transaction={selected}
