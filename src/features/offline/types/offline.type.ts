@@ -33,4 +33,6 @@ export type SyncState = {
   pending: number
   syncing: boolean
   lastSyncedAt: number | null
+  /** Alterações que o servidor recusou e que este aparelho desfez. */
+  rejected: number
 }

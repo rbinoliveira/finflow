@@ -14,5 +14,3 @@ export const OFFLINE_INDEX = {
 export const SERVICE_WORKER_PATH = '/sw.js'
 export const SERVICE_WORKER_SCOPE = '/'
 export const WEB_MANIFEST_PATH = '/manifest.webmanifest'
-
-export const SYNC_RETRY_LIMIT = 8

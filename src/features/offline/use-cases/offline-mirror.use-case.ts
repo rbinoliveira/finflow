@@ -4,6 +4,7 @@ import {
 } from '@/features/offline/constants/offline-storage.constants'
 import {
   deleteRecord,
+  listRecords,
   listRecordsByIndex,
   offlineStorageAvailable,
   readRecord,
@@ -32,6 +33,18 @@ export async function readMirrorUseCase<T extends SyncedDocument>(
     return records
       .filter((record) => !record.data.deletedAt)
       .map((record) => record.data)
+  } catch {
+    return []
+  }
+}
+
+export async function listPendingMirrorUseCase(): Promise<OfflineRecord[]> {
+  if (!offlineStorageAvailable()) return []
+
+  try {
+    const records = await listRecords<OfflineRecord>(OFFLINE_STORE.records)
+
+    return records.filter((record) => record.pending)
   } catch {
     return []
   }

@@ -54,7 +54,7 @@ type LedgerProviderProps = {
 
 export function LedgerProvider({ children }: LedgerProviderProps) {
   const uid = useUserScope()
-  const { online, refreshPending } = useSync()
+  const { online, rejected, refreshPending } = useSync()
   const [data, setData] = useState<LedgerData>(EMPTY_LEDGER)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -107,6 +107,11 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
 
     if (online && uid) reload().catch(() => undefined)
   }, [online, uid, reload])
+
+  /* O que o servidor recusou ainda está na tela; relendo, sai. */
+  useEffect(() => {
+    if (rejected > 0 && uid) reload().catch(() => undefined)
+  }, [rejected, uid, reload])
 
   const value = useMemo(
     () => ({ ...data, uid, loading, error, reload }),

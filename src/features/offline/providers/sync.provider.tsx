@@ -19,6 +19,7 @@ import { useFirebaseAuth } from '@/features/platform/providers/firebase-auth.pro
 type SyncContextValue = SyncState & {
   sync: () => Promise<void>
   refreshPending: () => Promise<void>
+  dismissRejected: () => void
 }
 
 const SyncContext = createContext<SyncContextValue>({
@@ -26,8 +27,10 @@ const SyncContext = createContext<SyncContextValue>({
   pending: 0,
   syncing: false,
   lastSyncedAt: null,
+  rejected: 0,
   sync: async () => undefined,
   refreshPending: async () => undefined,
+  dismissRejected: () => undefined,
 })
 
 const PENDING_POLL_MS = 4000
@@ -42,6 +45,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
   const [pending, setPending] = useState(0)
   const [syncing, setSyncing] = useState(false)
   const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null)
+  const [rejected, setRejected] = useState(0)
 
   const refreshPending = useCallback(async () => {
     setPending(await countPendingUseCase())
@@ -60,6 +64,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
       setPending(result.pending)
       if (result.applied > 0) setLastSyncedAt(Date.now())
+      if (result.rejected > 0) {
+        setRejected((total) => total + result.rejected)
+      }
     } finally {
       setSyncing(false)
     }
@@ -95,9 +102,29 @@ export function SyncProvider({ children }: SyncProviderProps) {
     return () => window.clearInterval(timer)
   }, [user, sync, refreshPending])
 
+  const dismissRejected = useCallback(() => setRejected(0), [])
+
   const value = useMemo(
-    () => ({ online, pending, syncing, lastSyncedAt, sync, refreshPending }),
-    [online, pending, syncing, lastSyncedAt, sync, refreshPending],
+    () => ({
+      online,
+      pending,
+      syncing,
+      lastSyncedAt,
+      rejected,
+      sync,
+      refreshPending,
+      dismissRejected,
+    }),
+    [
+      online,
+      pending,
+      syncing,
+      lastSyncedAt,
+      rejected,
+      sync,
+      refreshPending,
+      dismissRejected,
+    ],
   )
 
   return <SyncContext value={value}>{children}</SyncContext>

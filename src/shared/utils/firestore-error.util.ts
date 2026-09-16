@@ -6,12 +6,27 @@ const MESSAGE_BY_CODE: Record<string, string> = {
   'deadline-exceeded': 'A conexão demorou demais para responder.',
 }
 
-function firestoreCode(caught: unknown): string | null {
+export function firestoreCode(caught: unknown): string | null {
   if (typeof caught !== 'object' || caught === null) return null
 
   const code = (caught as { code?: unknown }).code
 
   return typeof code === 'string' ? code.replace('firestore/', '') : null
+}
+
+/* O servidor olhou a escrita e disse não: repetir não muda a resposta. Todo o
+   resto — rede, prazo, token vencendo — passa se esperar. */
+const REJECTION_CODES = new Set([
+  'permission-denied',
+  'invalid-argument',
+  'failed-precondition',
+  'out-of-range',
+])
+
+export function isFirestoreRejection(caught: unknown): boolean {
+  const code = firestoreCode(caught)
+
+  return code !== null && REJECTION_CODES.has(code)
 }
 
 export function describeFirestoreError(caught: unknown): string {
