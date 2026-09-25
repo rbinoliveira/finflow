@@ -11,3 +11,7 @@ export const SOURCE_BREAKDOWN_DESCRIPTION =
   'Onde o dinheiro saiu, pelo valor da compra no mês'
 
 export const BREAKDOWN_LIMIT = 6
+
+export const MESSAGE_BILLS_UP_TO_DATE = 'Você está em dia'
+export const MESSAGE_BILLS_UP_TO_DATE_HINT =
+  'Nenhuma conta recorrente a pagar ou a receber.'

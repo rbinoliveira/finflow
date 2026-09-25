@@ -1,5 +1,4 @@
 import type { CreditCard } from '@/features/cards/types/card.type'
-import { createLocalId } from '@/features/offline/utils/local-id.util'
 import type { Transaction } from '@/features/transactions/types/transaction.type'
 import { monthOf, shiftMonth } from '@/shared/utils/date.util'
 import { splitCents } from '@/shared/utils/money.util'
@@ -32,7 +31,8 @@ export function buildInstallmentsUseCase(
     const invoiceMonth = shiftMonth(primeiraFatura, index)
 
     return {
-      id: createLocalId(),
+      // Derived id: rebuilding the same purchase overwrites instead of doubling the invoice
+      id: `${transaction.id}_${index + 1}`,
       transactionId: transaction.id,
       cardId: card.id,
       number: index + 1,

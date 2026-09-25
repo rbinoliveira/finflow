@@ -39,6 +39,8 @@ export async function payRecurrenceBillUseCase(
       recurrenceId: recurrence.id,
     },
     context,
+    // One id per recurrence and month: paying twice overwrites instead of duplicating
+    `${recurrence.id}_${bill.month}`,
   )
 }
 

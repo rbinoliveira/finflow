@@ -104,9 +104,25 @@ export async function removeMirrorUseCase(
   }
 }
 
+/** Ids with local changes not yet confirmed by the server, pending or queued. */
+export async function listLocalChangesUseCase(
+  collection: SyncCollection,
+): Promise<Set<string>> {
+  const pendentes = (await listPendingMirrorUseCase())
+    .filter((record) => record.collection === collection)
+    .map((record) => record.id)
+
+  const naFila = (await listOutboxUseCase())
+    .filter((mutation) => mutation.collection === collection)
+    .map((mutation) => mutation.documentId)
+
+  return new Set([...pendentes, ...naFila])
+}
+
 export async function replaceMirrorUseCase<T extends SyncedDocument>(
   collection: SyncCollection,
   documents: T[],
+  changedBeforeRead: Set<string> = new Set(),
 ): Promise<void> {
   if (!offlineStorageAvailable()) return
 
@@ -121,7 +137,10 @@ export async function replaceMirrorUseCase<T extends SyncedDocument>(
   /* Um registro ainda pendente não pode ser apagado pelo que veio da rede:
      ele é justamente o que a rede ainda não conhece. */
   const obsoletos = stored.filter(
-    (record) => !record.pending && !incoming.has(record.id),
+    (record) =>
+      !record.pending &&
+      !changedBeforeRead.has(record.id) &&
+      !incoming.has(record.id),
   )
 
   /* Nem sobrescrito: a leitura pode chegar antes do envio da edição, e a
@@ -140,7 +159,10 @@ export async function replaceMirrorUseCase<T extends SyncedDocument>(
       ),
     ),
     ...documents
-      .filter((document) => !naFila.has(document.id))
+      .filter(
+        (document) =>
+          !naFila.has(document.id) && !changedBeforeRead.has(document.id),
+      )
       .map((document) => writeMirrorUseCase(collection, document, false)),
   ])
 }

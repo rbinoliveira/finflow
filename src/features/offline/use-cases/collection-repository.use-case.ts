@@ -6,6 +6,7 @@ import type {
   SyncedDocument,
 } from '@/features/offline/types/offline.type'
 import {
+  listLocalChangesUseCase,
   readMirrorUseCase,
   removeMirrorUseCase,
   replaceMirrorUseCase,
@@ -27,6 +28,9 @@ export async function listCollectionUseCase<T extends SyncedDocument>(
 ): Promise<T[]> {
   if (isOnline()) {
     try {
+      // Snapshot before the read: a sync settling mid-read must not look like a server delete
+      const changedBeforeRead = await listLocalChangesUseCase(collection)
+
       const snapshot = await getDocs(
         firestoreCollection(db, userCollectionPath(uid, collection)),
       )
@@ -35,7 +39,7 @@ export async function listCollectionUseCase<T extends SyncedDocument>(
         (entry) => ({ ...entry.data(), id: entry.id }) as T,
       )
 
-      await replaceMirrorUseCase(collection, documents)
+      await replaceMirrorUseCase(collection, documents, changedBeforeRead)
     } catch {
       /* sem resposta agora — o espelho responde pela tela */
     }

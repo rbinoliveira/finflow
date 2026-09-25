@@ -23,7 +23,7 @@ import { MonthSwitcher } from '@/shared/components/month-switcher'
 import { SectionHeader } from '@/shared/components/section-header'
 import { currentMonth } from '@/shared/utils/date.util'
 
-import { DashboardOpenBills } from '../components/dashboard-open-bills'
+import { DashboardBills } from '../components/dashboard-bills'
 import { DashboardOpenInvoices } from '../components/dashboard-open-invoices'
 import { DashboardSpendingBreakdown } from '../components/dashboard-spending-breakdown'
 import { DashboardSummary } from '../components/dashboard-summary'
@@ -91,21 +91,14 @@ export function DashboardPage() {
         <MonthSwitcher month={month} onChange={setMonth} />
       </header>
 
+      <DashboardBills
+        bills={contasAbertas}
+        categories={categories}
+        loading={loading}
+        onSelect={setBill}
+      />
+
       <DashboardSummary summary={summary} />
-
-      <DashboardOpenBills
-        bills={contasAbertas}
-        kind="expense"
-        categories={categories}
-        onSelect={setBill}
-      />
-
-      <DashboardOpenBills
-        bills={contasAbertas}
-        kind="income"
-        categories={categories}
-        onSelect={setBill}
-      />
 
       <DashboardOpenInvoices invoices={openInvoices} cards={cards} />
 

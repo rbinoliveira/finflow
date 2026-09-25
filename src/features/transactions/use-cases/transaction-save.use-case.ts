@@ -55,13 +55,14 @@ export async function createTransactionUseCase(
   uid: string,
   input: TransactionInput,
   context: SaveContext,
+  id: string = createLocalId(),
 ): Promise<Transaction> {
   const now = Date.now()
 
   const transaction = await saveDocumentUseCase<Transaction>(
     uid,
     'transactions',
-    { ...input, id: createLocalId(), createdAt: now, updatedAt: now },
+    { ...input, id, createdAt: now, updatedAt: now },
     'create',
   )
 
